@@ -29,7 +29,6 @@ var FPS = 60;
  
 var DEBUG = true;
  
-// var io = require('socket.io')(serv,{});
 const io = socketIO(serv, {});
 io.sockets.on('connection', function(socket){
 	socket.id = Math.random();
@@ -59,14 +58,24 @@ io.sockets.on('connection', function(socket){
  
 });
  
-setInterval(function(){
-	var pack = {
-		player:Player.update(),
-		bullet:Bullet.update(),
-	}
+// setInterval(function(){
+// 	var pack = {
+// 		player:Player.update(),
+// 		bullet:Bullet.update(),
+// 	}
  
-	for(var i in SOCKET_LIST){
-		var socket = SOCKET_LIST[i];
-		socket.emit('newPositions',pack);
-	}
+// 	for(var i in SOCKET_LIST){
+// 		var socket = SOCKET_LIST[i];
+// 		socket.emit('newPositions',pack);
+// 	}
+
+
+	setInterval(function(){
+		var packs = Entity.getFrameUpdateData();
+		for(var i in SOCKET_LIST){
+			var socket = SOCKET_LIST[i];
+			socket.emit('init',packs.initPack);
+			socket.emit('update',packs.updatePack);
+			socket.emit('remove',packs.removePack);
+		}
 },1000/FPS);
