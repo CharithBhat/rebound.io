@@ -23,7 +23,11 @@ const io = socketIO(serv, {});
 io.sockets.on('connection', function (socket) {
 	socket.id = Math.random();
 	SOCKET_LIST[socket.id] = socket;
-	Player.onConnect(socket,'char');
+
+	socket.on('start', function(username){
+		Player.onConnect(socket,username);
+		socket.emit('startResponse');
+	});
 
 	socket.on('disconnect', function () {
 		delete SOCKET_LIST[socket.id];

@@ -1,16 +1,26 @@
-<div id="game" style="position: absolute; width: 500px; height: 500px;">
-	<canvas id="ctx" width="500" height="500" style="position: absolute; border: 1px solid #000000; z-index: 1;"></canvas>
-	<canvas id="ctx-ui" width="500" height="500" style="position: absolute; border: 1px solid #000000; z-index: 2;"></canvas>
+<div id="startScreen">
+	Username: <input id="usernameInput" type="text"></input><br>
+	<button id="playButton">Play</button>
 </div>
 
-<div id="belowGame" style="position: absolute; top: 520px;">
-	<div id="chat-text" style="width: 500px; height: 100px; overflow-y: scroll;">
-		<div>Hello!</div>
+<div id="gameDiv" style="display:none;">
+	<div id="game" style="position: absolute; width: 500px; height: 500px;">
+		<canvas id="ctx" width="500" height="500"
+			style="position: absolute; border: 1px solid #000000; z-index: 1;"></canvas>
+		<canvas id="ctx-ui" width="500" height="500"
+			style="position: absolute; border: 1px solid #000000; z-index: 2;"></canvas>
 	</div>
-	<form id="chat-form">
-		<input id="chat-input" type="text" style="width: 500px;"></input>
-	</form>
+
+	<div id="belowGame" style="position: absolute; top: 520px;">
+		<div id="chat-text" style="width: 500px; height: 100px; overflow-y: scroll;">
+			<div>Hello!</div>
+		</div>
+		<form id="chat-form">
+			<input id="chat-input" type="text" style="width: 500px;"></input>
+		</form>
+	</div>
 </div>
+
 
 
 
@@ -21,6 +31,9 @@
 	var chatForm = document.getElementById('chat-form');
 	var ctx = document.getElementById("ctx").getContext("2d");
 	var ctxUi = document.getElementById("ctx-ui").getContext("2d");
+	var playButton = document.getElementById('playButton');
+	var usernameInput = document.getElementById('usernameInput');
+	var startScreen = document.getElementById('startScreen');
 	ctxUi.font = '30px Arial';
 
 
@@ -28,11 +41,20 @@
 	var HEIGHT = 500;
 	var socket = io();
 
+	playButton.onclick = function () {
+		socket.emit('start', usernameInput.value);
+	}
+
 	socket.on('addToChat', function (data) {
 		chatText.innerHTML += '<div>' + data + '</div>';
 	});
 	socket.on('evalAnswer', function (data) {
 		console.log(data);
+	});
+
+	socket.on('startResponse', function () {
+		startScreen.style.display = 'none';
+		gameDiv.style.display = 'inline-block';
 	});
 
 
