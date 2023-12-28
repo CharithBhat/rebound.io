@@ -4,78 +4,55 @@ var http = require('http');
 var app = express();
 // var serv = require('http').Server(app);
 const serv = http.createServer(app);
+// require('./entity');
+const { Entity, Player, Bullet } = require('./entity');
 
-// imports
-var Player = require('./server/player.js');
-var Bullet = require('./server/bullet.js');
- 
-app.get('/',function(req, res) {
+
+app.get('/', function (req, res) {
 	res.sendFile(__dirname + '/client/index.html');
 });
-app.use('/client',express.static(__dirname + '/client'));
- 
+app.use('/client', express.static(__dirname + '/client'));
 serv.listen(2000);
 console.log("Server started.");
- 
-var SOCKET_LIST = {};
 
+var SOCKET_LIST = {};
 var FPS = 60;
- 
-// entity 
- 
-// player
- 
-// bullet
- 
 var DEBUG = true;
- 
+
 const io = socketIO(serv, {});
-io.sockets.on('connection', function(socket){
+io.sockets.on('connection', function (socket) {
 	socket.id = Math.random();
 	SOCKET_LIST[socket.id] = socket;
- 
-	Player.onConnect(socket);
- 
-	socket.on('disconnect',function(){
+	Player.onConnect(socket,'char');
+
+	socket.on('disconnect', function () {
 		delete SOCKET_LIST[socket.id];
 		Player.onDisconnect(socket);
 	});
-	socket.on('sendMsgToServer',function(data){
-		var playerName = ("" + socket.id).slice(2,7);
-		for(var i in SOCKET_LIST){
-			SOCKET_LIST[i].emit('addToChat',playerName + ': ' + data);
+	socket.on('sendMsgToServer', function (data) {
+		var playerName = ("" + socket.id).slice(2, 7);
+		for (var i in SOCKET_LIST) {
+			SOCKET_LIST[i].emit('addToChat', playerName + ': ' + data);
 		}
 	});
- 
-	socket.on('evalServer',function(data){
-		if(!DEBUG)
+
+	socket.on('evalServer', function (data) {
+		if (!DEBUG)
 			return;
 		var res = eval(data);
-		socket.emit('evalAnswer',res);		
+		socket.emit('evalAnswer', res);
 	});
- 
- 
- 
+
+
+
 });
- 
-// setInterval(function(){
-// 	var pack = {
-// 		player:Player.update(),
-// 		bullet:Bullet.update(),
-// 	}
- 
-// 	for(var i in SOCKET_LIST){
-// 		var socket = SOCKET_LIST[i];
-// 		socket.emit('newPositions',pack);
-// 	}
 
-
-	setInterval(function(){
-		var packs = Entity.getFrameUpdateData();
-		for(var i in SOCKET_LIST){
-			var socket = SOCKET_LIST[i];
-			socket.emit('init',packs.initPack);
-			socket.emit('update',packs.updatePack);
-			socket.emit('remove',packs.removePack);
-		}
-},1000/FPS);
+setInterval(function () {
+	var packs = Entity.getFrameUpdateData();
+	for (var i in SOCKET_LIST) {
+		var socket = SOCKET_LIST[i];
+		socket.emit('init', packs.initPack);
+		socket.emit('update', packs.updatePack);
+		socket.emit('remove', packs.removePack);
+	}
+}, 1000 / FPS);
