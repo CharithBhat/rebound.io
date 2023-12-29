@@ -41,6 +41,7 @@
 	var WIDTH = 500;
 	var HEIGHT = 500;
 	var socket = io();
+	const FPS = 60;
 
 	playButton.onclick = function () {
 		socket.emit('start', usernameInput.value);
@@ -76,6 +77,10 @@
 	Img.otherPlayer.src = '/client/img/bat.png';
 	Img.bullet = new Image();
 	Img.bullet.src = '/client/img/bullet.png';
+
+	Img.map = {};
+	Img.map['field'] = new Image();
+	Img.map['field'].src = '/client/img/map.png';
 
 	var Player = function (initPack) {
 		var self = {};
@@ -207,14 +212,22 @@
 
 	setInterval(function () {
 		if (!selfId)
-			return;
+			return;	
 		ctx.clearRect(0, 0, 500, 500);
+		drawMap();
 		drawScore();
 		for (var i in Player.list)
 			Player.list[i].draw();
 		for (var i in Bullet.list)
 			Bullet.list[i].draw();
-	}, 60);
+	}, FPS);
+
+	var drawMap = function(){
+		var player = Player.list[selfId];
+		var x = WIDTH/2 - player.x;
+		var y = HEIGHT/2 - player.y;
+		ctx.drawImage(Img.map['field'],x,y);
+	}
 
 
 	var drawScore = function () {
