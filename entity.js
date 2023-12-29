@@ -63,11 +63,9 @@ Entity.getFrameUpdateData = function () {
 
 // player 
 
-
-
-var Player = function (param) {
+Player = function (param) {
 	var self = Entity(param);
-	self.id = param.id;
+	// self.id = param.id;
 	self.number = "" + Math.floor(10 * Math.random());
 	self.username = param.username;
 	self.pressingRight = false;
@@ -134,6 +132,7 @@ var Player = function (param) {
 			y: self.y,
 			hp: self.hp,
 			score: self.score,
+			username: self.username,
 		}
 	}
 
@@ -185,6 +184,9 @@ Player.getAllInitPack = function () {
 }
 
 Player.onDisconnect = function (socket) {
+	let player = Player.list[socket.id];
+	if (!player)
+		return;
 	delete Player.list[socket.id];
 	removePack.player.push(socket.id);
 }
@@ -281,4 +283,8 @@ Bullet.getAllInitPack = function () {
 	return bullets;
 }
 
-module.exports = { Entity, Player, Bullet };
+module.exports = {
+	Entity,
+	Player,
+	Bullet
+};
