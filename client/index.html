@@ -71,6 +71,8 @@
 	var Img = {};
 	Img.player = new Image();
 	Img.player.src = '/client/img/player.png';
+	Img.otherPlayer = new Image();
+	Img.otherPlayer.src = '/client/img/bat.png';
 	Img.bullet = new Image();
 	Img.bullet.src = '/client/img/bullet.png';
 
@@ -83,6 +85,7 @@
 		self.hp = initPack.hp;
 		self.hpMax = initPack.hpMax;
 		self.score = initPack.score;
+		self.username = initPack.username;
 
 		self.draw = function () {
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
@@ -92,13 +95,24 @@
 			ctx.fillStyle = 'red';
 			ctx.fillRect(x - hpWidth / 2, y - 40, hpWidth, 4);
 
-			var width = Img.player.width * 2;
-			var height = Img.player.height * 2;
+			if (Player.list[self.id].username === 'char') {
+				var width = Img.otherPlayer.width * 2;
+				var height = Img.otherPlayer.height * 2;
 
 
-			ctx.drawImage(Img.player,
-				0, 0, Img.player.width, Img.player.height,
-				x - width / 2, y - height / 2, width, height);
+				ctx.drawImage(Img.otherPlayer,
+					0, 0, Img.otherPlayer.width, Img.otherPlayer.height,
+					x - width / 2, y - height / 2, width, height);
+			} else {
+				console.log(Player.list[selfId].username);
+				var width = Img.player.width * 2;
+				var height = Img.player.height * 2;
+
+
+				ctx.drawImage(Img.player,
+					0, 0, Img.player.width, Img.player.height,
+					x - width / 2, y - height / 2, width, height);
+			}
 		}
 
 		Player.list[self.id] = self;

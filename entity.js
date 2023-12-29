@@ -124,6 +124,7 @@ var Player = function (param) {
 			hp: self.hp,
 			hpMax: self.hpMax,
 			score: self.score,
+			username: self.username,
 		};
 	}
 	self.getUpdatePack = function () {
