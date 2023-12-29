@@ -97,10 +97,10 @@
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
 
-			var hpWidth = 30 * self.hp / self.hpMax;
-			ctx.fillStyle = 'red';
+			var hpWidth = 40 * self.hp / self.hpMax;
+			ctx.fillStyle = 'green';
 			ctx.fillRect(x - hpWidth / 2, y - 40, hpWidth, 4);
-
+			
 			if (Player.list[self.id].username === 'char') {
 				var width = Img.otherPlayer.width * 2;
 				var height = Img.otherPlayer.height * 2;
@@ -110,7 +110,6 @@
 					0, 0, Img.otherPlayer.width, Img.otherPlayer.height,
 					x - width / 2, y - height / 2, width, height);
 			} else {
-				console.log(Player.list[selfId].username);
 				var width = Img.player.width * 2;
 				var height = Img.player.height * 2;
 

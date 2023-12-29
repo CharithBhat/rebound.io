@@ -7,6 +7,9 @@ var removePack = {
 	bullet: []
 };
 
+const MAP_HEIGHT = 480;
+const MAP_WIDTH = 640;
+
 Entity = function (param) {
 	var self = {
 		x: 250,
@@ -29,8 +32,16 @@ Entity = function (param) {
 		self.updatePosition();
 	}
 	self.updatePosition = function () {
-		self.x += self.spdX;
-		self.y += self.spdY;
+		// self.x += self.spdX;
+		// self.y += self.spdY;
+
+		var nextX = self.x + self.spdX;
+		var nextY = self.y + self.spdY;
+
+		if (nextX > 0 && nextX < MAP_WIDTH)
+			self.x = nextX;
+		if (nextY > 0 && nextY < MAP_HEIGHT)
+			self.y = nextY;
 	}
 	self.getDistance = function (pt) { // distance between point and the entity
 		return Math.sqrt(Math.pow(self.x - pt.x, 2) + Math.pow(self.y - pt.y, 2));
