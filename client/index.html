@@ -35,6 +35,7 @@
 	var usernameInput = document.getElementById('usernameInput');
 	var startScreen = document.getElementById('startScreen');
 	ctxUi.font = '30px Arial';
+	ctx.font = '20px Arial';
 
 
 	var WIDTH = 500;
@@ -113,6 +114,10 @@
 					0, 0, Img.player.width, Img.player.height,
 					x - width / 2, y - height / 2, width, height);
 			}
+
+			ctx.fillStyle = 'black';
+			var textWidth = ctx.measureText(self.username).width;
+			ctx.fillText(self.username, x - textWidth / 2, y + 50);
 		}
 
 		Player.list[self.id] = self;
