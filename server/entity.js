@@ -1,3 +1,5 @@
+const { TILE_SIZE, array2D } = require('./collision-map');
+
 var initPack = {
 	player: [],
 	bullet: []
@@ -10,10 +12,11 @@ var removePack = {
 const MAP_HEIGHT = 1600;
 const MAP_WIDTH = 1600;
 
+// const MAP_WIDTH =  array2D[0].length * TILE_SIZE;
+// const MAP_HEIGHT =  array2D.length * TILE_SIZE;
+
 Entity = function (param) {
 	var self = {
-		// x: 250,
-		// y: 250,
 		x: MAP_WIDTH / 2,
 		y: MAP_HEIGHT / 2,
 		spdX: 0,
@@ -39,6 +42,7 @@ Entity = function (param) {
 
 		// logic to stop player from going outside the map
 
+
 		var nextX = self.x + self.spdX;
 		var nextY = self.y + self.spdY;
 
@@ -52,6 +56,7 @@ Entity = function (param) {
 	}
 	return self;
 }
+
 
 Entity.getFrameUpdateData = function () {
 	var pack = {
@@ -235,6 +240,7 @@ var Bullet = function (param) {
 	self.update = function () {
 		if (self.timer++ > 100)
 			self.toRemove = true;
+		if(isPositionWall(array2D, self.x, self.y)) self.toRemove = true;
 		super_update();
 
 		for (var i in Player.list) {
@@ -253,6 +259,16 @@ var Bullet = function (param) {
 				self.toRemove = true;
 			}
 		}
+	}
+
+	isPositionWall = function (grid, pointX, pointY) {
+		var gridX = Math.floor(pointX / TILE_SIZE);
+		var gridY = Math.floor(pointY / TILE_SIZE);
+		if (gridX < 0 || gridX >= grid[0].length)
+			return true;
+		if (gridY < 0 || gridY >= grid.length)
+			return true;
+		return grid[gridY][gridX] != 0;
 	}
 
 	self.getInitPack = function () {

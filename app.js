@@ -5,7 +5,7 @@ var app = express();
 // var serv = require('http').Server(app);
 const serv = http.createServer(app);
 // require('./entity');
-const { Entity, Player, Bullet } = require('./entity');
+const { Entity, Player, Bullet } = require('./server/entity');
 
 
 app.get('/', function (req, res) {
