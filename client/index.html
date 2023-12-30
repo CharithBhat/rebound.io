@@ -44,7 +44,7 @@
 	</div>
 </body>
 
-
+<script src="/client/js/collision-map.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
 	// var chatText = document.getElementById('chat-text');
@@ -63,6 +63,8 @@
 	var HEIGHT = 500;
 	var socket = io();
 	const FPS = 60;
+
+	
 
 	let resizeCanvas = function () {
 		WIDTH = window.innerWidth - 4;
@@ -120,7 +122,7 @@
 
 	Img.map = {};
 	Img.map['field'] = new Image();
-	Img.map['field'].src = '/client/img/map.png';
+	Img.map['field'].src = '/client/img/brownMap.png';
 
 	var Player = function (initPack) {
 		var self = {};
@@ -268,7 +270,7 @@
 		ctx.drawImage(Img.map['field'], x, y);
 
 		ctx.drawImage(Img.map['field'], 0, 0, Img.map['field'].width, Img.map['field'].height, x, y, Img.map['field']
-			.width * 2, Img.map['field'].height * 2);
+			.width , Img.map['field'].height );
 	}
 
 

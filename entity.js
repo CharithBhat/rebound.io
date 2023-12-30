@@ -7,8 +7,8 @@ var removePack = {
 	bullet: []
 };
 
-const MAP_HEIGHT = 960;
-const MAP_WIDTH = 1280;
+const MAP_HEIGHT = 1600;
+const MAP_WIDTH = 1600;
 
 Entity = function (param) {
 	var self = {
