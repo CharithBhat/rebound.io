@@ -1,4 +1,4 @@
-<div id="startScreen">
+<!-- <div id="startScreen">
 	Username: <input id="usernameInput" type="text"></input><br>
 	<button id="playButton">Play</button>
 </div>
@@ -19,37 +19,77 @@
 			<input id="chat-input" type="text" style="width: 500px;"></input>
 		</form>
 	</div>
-</div>
+</div> -->
 
+<body style="margin: 0px; padding: 0px;">
+	<div id="startScreen">
+		Username: <input id="usernameInput" type="text"></input><br>
+		<button id="playButton">Play</button>
+	</div>
 
+	<div id="gameDiv" style="display:none; height: 100vh; width: 100vw;">
+		<div id="game" style="position: absolute; height: 100vh; width: 100vw;">
+			<canvas id="ctx" style="position: absolute; border: 1px solid #000000; z-index: 1;"></canvas>
+			<canvas id="ctx-ui" style="position: absolute; border: 1px solid #000000; z-index: 2;"></canvas>
+		</div>
+
+		<!-- <div id="belowGame" style="position: absolute; top: 520px;">
+			<div id="chat-text" style="width: 500px; height: 100px; overflow-y: scroll;">
+				<div>Hello!</div>
+			</div>
+			<form id="chat-form">
+				<input id="chat-input" type="text" style="width: 500px;"></input>
+			</form>
+		</div> -->
+	</div>
+</body>
 
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-	var chatText = document.getElementById('chat-text');
-	var chatInput = document.getElementById('chat-input');
-	var chatForm = document.getElementById('chat-form');
+	// var chatText = document.getElementById('chat-text');
+	// var chatInput = document.getElementById('chat-input');
+	// var chatForm = document.getElementById('chat-form');
 	var ctx = document.getElementById("ctx").getContext("2d");
 	var ctxUi = document.getElementById("ctx-ui").getContext("2d");
+	var canvas = document.getElementById("ctx");
+	var canvasUI = document.getElementById("ctx-ui");
+
 	var playButton = document.getElementById('playButton');
 	var usernameInput = document.getElementById('usernameInput');
 	var startScreen = document.getElementById('startScreen');
-	ctxUi.font = '30px Arial';
-	ctx.font = '20px Arial';
-
 
 	var WIDTH = 500;
 	var HEIGHT = 500;
 	var socket = io();
 	const FPS = 60;
 
+	let resizeCanvas = function () {
+		WIDTH = window.innerWidth - 4;
+		HEIGHT = window.innerHeight - 4;
+		canvas.width = WIDTH;
+		canvas.height = HEIGHT;
+		canvasUI.width = WIDTH;
+		canvasUI.height = HEIGHT;
+		ctx.font = '30px Arial';
+		ctxUi.font = '20px Arial';
+		ctx.mozImageSmoothingEnabled = false; //better graphics for pixel art
+		ctx.msImageSmoothingEnabled = false;
+		ctx.imageSmoothingEnabled = false;
+	}
+	resizeCanvas();
+
+	window.addEventListener('resize', function () {
+		resizeCanvas();
+	});
+
 	playButton.onclick = function () {
 		socket.emit('start', usernameInput.value);
 	}
 
-	socket.on('addToChat', function (data) {
-		chatText.innerHTML += '<div>' + data + '</div>';
-	});
+	// socket.on('addToChat', function (data) {
+	// 	chatText.innerHTML += '<div>' + data + '</div>';
+	// });
 	socket.on('evalAnswer', function (data) {
 		console.log(data);
 	});
@@ -60,14 +100,14 @@
 	});
 
 
-	chatForm.onsubmit = function (e) {
-		e.preventDefault();
-		if (chatInput.value[0] === '/')
-			socket.emit('evalServer', chatInput.value.slice(1));
-		else
-			socket.emit('sendMsgToServer', chatInput.value);
-		chatInput.value = '';
-	}
+	// chatForm.onsubmit = function (e) {
+	// 	e.preventDefault();
+	// 	if (chatInput.value[0] === '/')
+	// 		socket.emit('evalServer', chatInput.value.slice(1));
+	// 	else
+	// 		socket.emit('sendMsgToServer', chatInput.value);
+	// 	chatInput.value = '';
+	// }
 
 	//game
 	var Img = {};
@@ -100,7 +140,7 @@
 			var hpWidth = 40 * self.hp / self.hpMax;
 			ctx.fillStyle = 'green';
 			ctx.fillRect(x - hpWidth / 2, y - 40, hpWidth, 4);
-			
+
 			if (Player.list[self.id].username === 'char') {
 				var width = Img.otherPlayer.width * 2;
 				var height = Img.otherPlayer.height * 2;
@@ -211,8 +251,8 @@
 
 	setInterval(function () {
 		if (!selfId)
-			return;	
-		ctx.clearRect(0, 0, 500, 500);
+			return;
+		ctx.clearRect(0, 0, WIDTH, HEIGHT);
 		drawMap();
 		drawScore();
 		for (var i in Player.list)
@@ -221,11 +261,14 @@
 			Bullet.list[i].draw();
 	}, FPS);
 
-	var drawMap = function(){
+	var drawMap = function () {
 		var player = Player.list[selfId];
-		var x = WIDTH/2 - player.x;
-		var y = HEIGHT/2 - player.y;
-		ctx.drawImage(Img.map['field'],x,y);
+		var x = WIDTH / 2 - player.x;
+		var y = HEIGHT / 2 - player.y;
+		ctx.drawImage(Img.map['field'], x, y);
+
+		ctx.drawImage(Img.map['field'], 0, 0, Img.map['field'].width, Img.map['field'].height, x, y, Img.map['field']
+			.width * 2, Img.map['field'].height * 2);
 	}
 
 
@@ -298,15 +341,6 @@
 		});
 	}
 	document.onmousemove = function (event) {
-		// var x = -250 + event.clientX - 8;
-		// var y = -250 + event.clientY - 8;
-		// var angle = Math.atan2(y, x) / Math.PI * 180;
-		// socket.emit('keyPress', {
-		// 	inputId: 'mouseAngle',
-		// 	state: angle
-		// });
-
-		// Assuming you have player's current position as playerX and playerY
 		var player = Player.list[selfId];
 		if (!player) return;
 

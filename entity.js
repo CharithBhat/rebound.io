@@ -7,13 +7,15 @@ var removePack = {
 	bullet: []
 };
 
-const MAP_HEIGHT = 480;
-const MAP_WIDTH = 640;
+const MAP_HEIGHT = 960;
+const MAP_WIDTH = 1280;
 
 Entity = function (param) {
 	var self = {
-		x: 250,
-		y: 250,
+		// x: 250,
+		// y: 250,
+		x: MAP_WIDTH / 2,
+		y: MAP_HEIGHT / 2,
 		spdX: 0,
 		spdY: 0,
 		id: "",
@@ -34,6 +36,8 @@ Entity = function (param) {
 	self.updatePosition = function () {
 		// self.x += self.spdX;
 		// self.y += self.spdY;
+
+		// logic to stop player from going outside the map
 
 		var nextX = self.x + self.spdX;
 		var nextY = self.y + self.spdY;
@@ -243,8 +247,8 @@ var Bullet = function (param) {
 					if (shooter)
 						shooter.score += 1;
 					p.hp = p.hpMax;
-					p.x = Math.random() * 500;
-					p.y = Math.random() * 500;
+					p.x = Math.random() * MAP_WIDTH;
+					p.y = Math.random() * MAP_HEIGHT;
 				}
 				self.toRemove = true;
 			}
