@@ -59,7 +59,27 @@ for (var i = 0; i < 50; i++) {
     }
 }
 
+var nonWallTiles = [];
+
+for (var i = 0; i < array2D.length; i++) {
+    for (var j = 0; j < array2D[i].length; j++) {
+        if (array2D[i][j] === 0) {
+            nonWallTiles.push({ x: j, y: i });
+        }
+    }
+}
+
+var nonWallTilesLength = nonWallTiles.length;
+
+function randomNonWallTile() {
+    var randomIndex = Math.floor(Math.random() * nonWallTilesLength);
+    return nonWallTiles[randomIndex];
+}
+
+
+
 module.exports = {
     array2D,
     TILE_SIZE,
+    randomNonWallTile
 };

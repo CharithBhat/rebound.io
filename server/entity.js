@@ -1,4 +1,8 @@
-const { TILE_SIZE, array2D } = require('./collision-map');
+const {
+	TILE_SIZE,
+	array2D,
+	randomNonWallTile
+} = require('./collision-map');
 
 var initPack = {
 	player: [],
@@ -9,13 +13,15 @@ var removePack = {
 	bullet: []
 };
 
-var MAP_WIDTH =  array2D[0].length * TILE_SIZE;
-var MAP_HEIGHT =  array2D.length * TILE_SIZE;
+var MAP_WIDTH = array2D[0].length * TILE_SIZE;
+var MAP_HEIGHT = array2D.length * TILE_SIZE;
 
 Entity = function (param) {
+	var spawnTile = randomNonWallTile();
+
 	var self = {
-		x: MAP_WIDTH / 2 - 100,
-		y: MAP_HEIGHT / 2 - 100,
+		x: spawnTile.x * TILE_SIZE + TILE_SIZE / 2, // Center of the tile horizontally
+		y: spawnTile.y * TILE_SIZE + TILE_SIZE / 2,
 		spdX: 0,
 		spdY: 0,
 		id: "",
@@ -43,12 +49,12 @@ Entity = function (param) {
 		var nextX = self.x + self.spdX;
 		var nextY = self.y + self.spdY;
 
-		if(isPositionWall(array2D,nextX, nextY)) return;
+		if (isPositionWall(array2D, nextX, nextY)) return;
 
 		// if (nextX > 0 && nextX < MAP_WIDTH)
-			self.x = nextX;
+		self.x = nextX;
 		// if (nextY > 0 && nextY < MAP_HEIGHT)
-			self.y = nextY;
+		self.y = nextY;
 	}
 	self.getDistance = function (pt) { // distance between point and the entity
 		return Math.sqrt(Math.pow(self.x - pt.x, 2) + Math.pow(self.y - pt.y, 2));
@@ -126,21 +132,31 @@ Player = function (param) {
 			y: self.y,
 		});
 	}
-	self.updateSpd = function () {
-		if (self.pressingRight)
-			self.spdX = self.maxSpd;
-		else if (self.pressingLeft)
-			self.spdX = -self.maxSpd;
-		else
-			self.spdX = 0;
 
-		if (self.pressingUp)
-			self.spdY = -self.maxSpd;
-		else if (self.pressingDown)
-			self.spdY = self.maxSpd;
-		else
-			self.spdY = 0;
-	}
+	self.updateSpd = function () {
+		var dx = 0;
+		var dy = 0;
+	
+		if (self.pressingRight) dx += 1;
+		if (self.pressingLeft) dx -= 1;
+		if (self.pressingUp) dy -= 1;
+		if (self.pressingDown) dy += 1;
+	
+		var length = Math.sqrt(dx * dx + dy * dy);
+		if (length > 0) {
+			dx /= length;
+			dy /= length;
+		}
+	
+		self.spdX = self.maxSpd * dx;
+		self.spdY = self.maxSpd * dy;
+
+
+		// Calculate the magnitude of the speed
+		var speedMagnitude = Math.sqrt(self.spdX * self.spdX + self.spdY * self.spdY);
+		console.log("Speed magnitude:", speedMagnitude);
+	};
+	
 
 	self.getInitPack = function () {
 		return {
@@ -243,15 +259,16 @@ var Bullet = function (param) {
 	self.spdX = Math.cos(param.angle / 180 * Math.PI) * 10;
 	self.spdY = Math.sin(param.angle / 180 * Math.PI) * 10;
 	self.parent = param.parent;
-	self.timer = 0;
+	self.collisionCount = 0;
 	self.toRemove = false;
 	var super_update = self.update;
 	self.update = function () {
 		nextX = self.x + self.spdX;
 		nextY = self.y + self.spdY;
-		if(isPositionWall(array2D, nextX, nextY)){
-			self.toRemove = true;
-		} 
+		if (isPositionWall(array2D, nextX, nextY)) {
+			if (self.collisionCount == 0) self.collisionCount++;
+			else self.ricochet();
+		}
 		super_update();
 
 		for (var i in Player.list) {
@@ -286,6 +303,10 @@ var Bullet = function (param) {
 			x: self.x,
 			y: self.y,
 		};
+	}
+
+	self.ricochet = function () {
+		// need to write this func out
 	}
 
 	Bullet.list[self.id] = self;
