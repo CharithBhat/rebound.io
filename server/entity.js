@@ -9,9 +9,6 @@ var removePack = {
 	bullet: []
 };
 
-// const MAP_HEIGHT = 1600;
-// const MAP_WIDTH = 1600;
-
 var MAP_WIDTH =  array2D[0].length * TILE_SIZE;
 var MAP_HEIGHT =  array2D.length * TILE_SIZE;
 
@@ -250,9 +247,11 @@ var Bullet = function (param) {
 	self.toRemove = false;
 	var super_update = self.update;
 	self.update = function () {
-		if (self.timer++ > 100)
+		nextX = self.x + self.spdX;
+		nextY = self.y + self.spdY;
+		if(isPositionWall(array2D, nextX, nextY)){
 			self.toRemove = true;
-		if(isPositionWall(array2D, self.x, self.y)) self.toRemove = true;
+		} 
 		super_update();
 
 		for (var i in Player.list) {
