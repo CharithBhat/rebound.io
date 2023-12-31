@@ -40,20 +40,11 @@ Entity = function (param) {
 		self.updatePosition();
 	}
 	self.updatePosition = function () {
-		// self.x += self.spdX;
-		// self.y += self.spdY;
-
-		// logic to stop player from going outside the map
-
-
 		var nextX = self.x + self.spdX;
 		var nextY = self.y + self.spdY;
 
 		if (isPositionWall(array2D, nextX, nextY)) return;
-
-		// if (nextX > 0 && nextX < MAP_WIDTH)
 		self.x = nextX;
-		// if (nextY > 0 && nextY < MAP_HEIGHT)
 		self.y = nextY;
 	}
 	self.getDistance = function (pt) { // distance between point and the entity
@@ -88,10 +79,6 @@ Entity.getFrameUpdateData = function () {
 isPositionWall = function (grid, pointX, pointY) {
 	var gridX = Math.floor(pointX / TILE_SIZE);
 	var gridY = Math.floor(pointY / TILE_SIZE);
-	// if (gridX < 0 || gridX >= grid[0].length)
-	// 	return true;
-	// if (gridY < 0 || gridY >= grid.length)
-	// 	return true;
 	return grid[gridY][gridX] != 0;
 }
 
@@ -136,27 +123,22 @@ Player = function (param) {
 	self.updateSpd = function () {
 		var dx = 0;
 		var dy = 0;
-	
+
 		if (self.pressingRight) dx += 1;
 		if (self.pressingLeft) dx -= 1;
 		if (self.pressingUp) dy -= 1;
 		if (self.pressingDown) dy += 1;
-	
+
 		var length = Math.sqrt(dx * dx + dy * dy);
 		if (length > 0) {
 			dx /= length;
 			dy /= length;
 		}
-	
+
 		self.spdX = self.maxSpd * dx;
 		self.spdY = self.maxSpd * dy;
-
-
-		// Calculate the magnitude of the speed
-		var speedMagnitude = Math.sqrt(self.spdX * self.spdX + self.spdY * self.spdY);
-		console.log("Speed magnitude:", speedMagnitude);
 	};
-	
+
 
 	self.getInitPack = function () {
 		return {
@@ -266,8 +248,8 @@ var Bullet = function (param) {
 		nextX = self.x + self.spdX;
 		nextY = self.y + self.spdY;
 		if (isPositionWall(array2D, nextX, nextY)) {
-			if (self.collisionCount == 0) self.collisionCount++;
-			else self.ricochet();
+			if (self.collisionCount == 1) self.toRemove = true;
+			else self.ricochet(nextX, nextY);
 		}
 		super_update();
 
@@ -305,8 +287,31 @@ var Bullet = function (param) {
 		};
 	}
 
-	self.ricochet = function () {
-		// need to write this func out
+	self.ricochet = function (pointX, pointY) {
+		self.collisionCount++;
+		var gridX = Math.floor(pointX / TILE_SIZE);
+		var gridY = Math.floor(pointY / TILE_SIZE);
+
+		var leftEdge = gridX * TILE_SIZE;
+		var rightEdge = (gridX + 1) * TILE_SIZE;
+		var topEdge = gridY * TILE_SIZE;
+		var bottomEdge = (gridY + 1) * TILE_SIZE;
+
+		// Calculate distances to each edge from the point of impact
+		var distanceToLeft = Math.abs(pointX - leftEdge);
+		var distanceToRight = Math.abs(pointX - rightEdge);
+		var distanceToTop = Math.abs(pointY - topEdge);
+		var distanceToBottom = Math.abs(pointY - bottomEdge);
+	
+		// Find the minimum distance
+		var minDistance = Math.min(distanceToLeft, distanceToRight, distanceToTop, distanceToBottom);
+	
+		// Determine which edge was hit based on the minimum distance
+		if (minDistance === distanceToLeft || minDistance === distanceToRight) {
+			self.spdX = -self.spdX; // Bounce off a vertical edge
+		} else {
+			self.spdY = -self.spdY; // Bounce off a horizontal edge
+		}	
 	}
 
 	Bullet.list[self.id] = self;
