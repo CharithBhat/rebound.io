@@ -18,9 +18,8 @@ var MAP_HEIGHT = array2D.length * TILE_SIZE;
 
 Entity = function (param) {
 	var spawnTile = randomNonWallTile();
-
 	var self = {
-		x: spawnTile.x * TILE_SIZE + TILE_SIZE / 2, // Center of the tile horizontally
+		x: spawnTile.x * TILE_SIZE + TILE_SIZE / 2, // TILE_SIZE/2 is just to center the player on the tile. so it looks good
 		y: spawnTile.y * TILE_SIZE + TILE_SIZE / 2,
 		spdX: 0,
 		spdY: 0,
@@ -253,20 +252,23 @@ var Bullet = function (param) {
 		}
 		super_update();
 
-		for (var i in Player.list) {
-			var p = Player.list[i];
-			if (self.getDistance(p) < 32 && self.parent !== p.id) {
-				p.hp -= 1;
-
-				if (p.hp <= 0) {
-					var shooter = Player.list[self.parent];
-					if (shooter)
-						shooter.score += 1;
-					p.hp = p.hpMax;
-					p.x = Math.random() * MAP_WIDTH;
-					p.y = Math.random() * MAP_HEIGHT;
+		if(self.collisionCount > 0){ // player harmed by ricochet's only
+			for (var i in Player.list) {
+				var p = Player.list[i];
+				if (self.getDistance(p) < 32 && self.parent !== p.id) {
+					p.hp -= 1;
+	
+					if (p.hp <= 0) {
+						var shooter = Player.list[self.parent];
+						if (shooter)
+							shooter.score += 1;
+						p.hp = p.hpMax;
+						var spawnTile = randomNonWallTile();
+						p.x = spawnTile.x * TILE_SIZE + TILE_SIZE / 2; // TILE_SIZE/2 is just to center the player on the tile. so it looks good
+						p.y = spawnTile.y * TILE_SIZE + TILE_SIZE / 2;
+					}
+					self.toRemove = true;
 				}
-				self.toRemove = true;
 			}
 		}
 	}
@@ -302,16 +304,16 @@ var Bullet = function (param) {
 		var distanceToRight = Math.abs(pointX - rightEdge);
 		var distanceToTop = Math.abs(pointY - topEdge);
 		var distanceToBottom = Math.abs(pointY - bottomEdge);
-	
+
 		// Find the minimum distance
 		var minDistance = Math.min(distanceToLeft, distanceToRight, distanceToTop, distanceToBottom);
-	
+
 		// Determine which edge was hit based on the minimum distance
 		if (minDistance === distanceToLeft || minDistance === distanceToRight) {
 			self.spdX = -self.spdX; // Bounce off a vertical edge
 		} else {
 			self.spdY = -self.spdY; // Bounce off a horizontal edge
-		}	
+		}
 	}
 
 	Bullet.list[self.id] = self;
