@@ -9,16 +9,16 @@ var removePack = {
 	bullet: []
 };
 
-const MAP_HEIGHT = 1600;
-const MAP_WIDTH = 1600;
+// const MAP_HEIGHT = 1600;
+// const MAP_WIDTH = 1600;
 
-// const MAP_WIDTH =  array2D[0].length * TILE_SIZE;
-// const MAP_HEIGHT =  array2D.length * TILE_SIZE;
+var MAP_WIDTH =  array2D[0].length * TILE_SIZE;
+var MAP_HEIGHT =  array2D.length * TILE_SIZE;
 
 Entity = function (param) {
 	var self = {
-		x: MAP_WIDTH / 2,
-		y: MAP_HEIGHT / 2,
+		x: MAP_WIDTH / 2 - 100,
+		y: MAP_HEIGHT / 2 - 100,
 		spdX: 0,
 		spdY: 0,
 		id: "",
@@ -46,9 +46,11 @@ Entity = function (param) {
 		var nextX = self.x + self.spdX;
 		var nextY = self.y + self.spdY;
 
-		if (nextX > 0 && nextX < MAP_WIDTH)
+		if(isPositionWall(array2D,nextX, nextY)) return;
+
+		// if (nextX > 0 && nextX < MAP_WIDTH)
 			self.x = nextX;
-		if (nextY > 0 && nextY < MAP_HEIGHT)
+		// if (nextY > 0 && nextY < MAP_HEIGHT)
 			self.y = nextY;
 	}
 	self.getDistance = function (pt) { // distance between point and the entity
@@ -78,6 +80,16 @@ Entity.getFrameUpdateData = function () {
 	removePack.player = [];
 	removePack.bullet = [];
 	return pack;
+}
+
+isPositionWall = function (grid, pointX, pointY) {
+	var gridX = Math.floor(pointX / TILE_SIZE);
+	var gridY = Math.floor(pointY / TILE_SIZE);
+	// if (gridX < 0 || gridX >= grid[0].length)
+	// 	return true;
+	// if (gridY < 0 || gridY >= grid.length)
+	// 	return true;
+	return grid[gridY][gridX] != 0;
 }
 
 
@@ -259,16 +271,6 @@ var Bullet = function (param) {
 				self.toRemove = true;
 			}
 		}
-	}
-
-	isPositionWall = function (grid, pointX, pointY) {
-		var gridX = Math.floor(pointX / TILE_SIZE);
-		var gridY = Math.floor(pointY / TILE_SIZE);
-		if (gridX < 0 || gridX >= grid[0].length)
-			return true;
-		if (gridY < 0 || gridY >= grid.length)
-			return true;
-		return grid[gridY][gridX] != 0;
 	}
 
 	self.getInitPack = function () {
