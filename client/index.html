@@ -74,7 +74,7 @@
 		canvasUI.width = WIDTH;
 		canvasUI.height = HEIGHT;
 		ctx.font = '30px Arial';
-		ctxUi.font = '20px Arial';
+		ctxUi.font = '30px Arial';
 		ctx.mozImageSmoothingEnabled = false; //better graphics for pixel art
 		ctx.msImageSmoothingEnabled = false;
 		ctx.imageSmoothingEnabled = false;
@@ -337,8 +337,8 @@
 		if (lastScore === Player.list[selfId].score)
 			return;
 		lastScore = Player.list[selfId].score;
-		ctxUi.clearRect(0, 0, 500, 500);
-		ctxUi.fillStyle = 'black';
+		ctxUi.clearRect(0, 0, WIDTH, HEIGHT);
+		ctxUi.fillStyle = 'white';
 		ctxUi.fillText(Player.list[selfId].score, 0, 30);
 	}
 	var lastScore = null;
