@@ -117,36 +117,53 @@ Player = function (param) {
 	self.bulletSpeed = 10;
 	self.bulletRadius = 10;
 	self.isImmune = false;
+	// gun related
+	self.isTripleShot = false;
+	self.isPhoenixShot = false;
+	self.isDoubleRebounder = false;
 
 	var super_update = self.update;
 	self.update = function () {
 		self.updateSpd();
 		super_update();
 
-		if (self.pressingAttack) {
-			self.shootBullet(self.mouseAngle);
+		var currentTime = Date.now();
+		if (self.pressingAttack && currentTime > self.nextShotTime) {
+			if (self.isTripleShot) {
+				var angles = [-30, 0, 30];
+				for (var i = 0; i < angles.length; i++) {
+					self.shootBullet(self.mouseAngle, angles[i]);
+				}
+			} else {
+				self.shootBullet(self.mouseAngle, 0);
+			}
+			self.nextShotTime = currentTime + self.fireRate; // Update the next shot time after shooting
 		}
 	}
 
-	self.shootBullet = function (angle) {
+	self.shootBullet = function (angle, offset) {
+		var collisionCap = 1;
+		if (self.isDoubleRebounder) collisionCap = 2;
+		else if (self.isPhoenixShot) collisionCap = 5;
+
+
 		var currentTime = Date.now();
 		if (currentTime > self.nextShotTime) {
 			const barrelLength = 20;
 			const barrelThickness = 15;
-			var angleInRadians = angle * Math.PI / 180;
+			var angleInRadians = (angle + offset) * Math.PI / 180;
 			// Calculate bullet's starting position at the end of the barrel
 			var bulletX = self.x + (barrelLength + barrelThickness / 2) * Math.cos(angleInRadians);
 			var bulletY = self.y + (barrelLength + barrelThickness / 2) * Math.sin(angleInRadians);
 			Bullet({
 				parent: self.id,
-				angle: angle,
+				angle: angle + offset,
 				x: bulletX,
 				y: bulletY,
 				bulletSpeed: self.bulletSpeed,
 				bulletRadius: self.bulletRadius,
+				collisionCap: collisionCap,
 			});
-
-			self.nextShotTime = currentTime + self.fireRate; // Set the next allowed shot time
 		}
 	}
 
@@ -181,6 +198,7 @@ Player = function (param) {
 			score: self.score,
 			username: self.username,
 			mouseAngle: self.mouseAngle,
+			isTripleShot: self.isTripleShot,
 		};
 	}
 	self.getUpdatePack = function () {
@@ -192,6 +210,7 @@ Player = function (param) {
 			score: self.score,
 			username: self.username,
 			mouseAngle: self.mouseAngle,
+			isTripleShot: self.isTripleShot,
 		}
 	}
 
@@ -279,6 +298,7 @@ var Bullet = function (param) {
 	self.collisionCount = 0;
 	self.toRemove = false;
 	self.radius = param.bulletRadius;
+	self.collisionCap = param.collisionCap;
 
 
 	var super_update = self.update;
@@ -286,7 +306,7 @@ var Bullet = function (param) {
 		nextX = self.x + self.spdX;
 		nextY = self.y + self.spdY;
 		if (isPositionWall(array2D, nextX, nextY)) {
-			if (self.collisionCount == 1) self.toRemove = true;
+			if (self.collisionCount == self.collisionCap) self.toRemove = true;
 			else self.ricochet(nextX, nextY);
 		}
 		super_update();
@@ -408,48 +428,55 @@ var Upgrade = function (param) {
 
 	// Example applyEffect function within Upgrade
 	self.applyEffect = function (player, upgradeName) {
-
-		// Apply the effect based on the upgrade name
 		switch (upgradeName) {
 
 			// buffs
-			case 'bullet speed': // done
+			case 'bullet speed':
 				player.bulletSpeed *= 2;
 				setTimeout(() => {
 					player.bulletSpeed /= 2;
 				}, BUFF_DURATION);
 				break;
-			case 'bullet size': // only size change, collision needs to change
+			case 'bullet size':
 				player.bulletRadius *= 2;
 				setTimeout(() => {
 					player.bulletRadius /= 2;
 				}, BUFF_DURATION);
 				break;
-			case 'bullet fireRate': // done
-				player.fireRate /= 2; // Example: Fire twice as often
+			case 'bullet fireRate':
+				player.fireRate /= 2;
 				setTimeout(() => {
-					player.fireRate *= 2; // Revert fire rate after 5 seconds
+					player.fireRate *= 2;
 				}, BUFF_DURATION);
 				break;
-			case 'immunity': // should work. needs test
+			case 'immunity':
 				player.isImmune = true;
 				setTimeout(() => {
 					player.isImmune = false;
-				}, 5000); // Immunity for 5 seconds
+				}, BUFF_DURATION);
 				break;
-			case 'health restore': // done
+			case 'health restore':
 				player.hp = player.hpMax;
 				break;
 
 				// guns
-			case 'penta shot':
-				player.gunType = 'penta shot';
+			case 'triple shot':
+				player.isTripleShot = true;
+				setTimeout(() => {
+					player.isTripleShot = false;
+				}, BUFF_DURATION);
 				break;
 			case 'phoenix shot':
-				player.gunType = 'phoenix shot';
+				player.isPhoenixShot = true;
+				setTimeout(() => {
+					player.isPhoenixShot = false;
+				}, BUFF_DURATION);
 				break;
 			case 'double rebounder':
-				player.gunType = 'double rebounder';
+				player.isDoubleRebounder = true;
+				setTimeout(() => {
+					player.isDoubleRebounder = false;
+				}, BUFF_DURATION);
 				break;
 			default:
 				console.log('Unknown upgrade:', upgradeName);
@@ -508,8 +535,8 @@ Upgrade.getAllInitPack = function () {
 }
 
 getRandomUpgrade = function (type) {
-	const buffUpgrade = ['bullet speed', 'bullet size', 'immunity', 'health restore'];
-	const gunUpgrade = ['penta shot', 'phoenix shot', 'double rebounder'];
+	const buffUpgrade = ['bullet speed', 'bullet size', 'immunity', 'health restore', 'bullet fireRate'];
+	const gunUpgrade = ['triple shot', 'phoenix shot', 'double rebounder'];
 
 	let availableUpgrade = type === 'buff' ? buffUpgrade : gunUpgrade;
 	let randomIndex = Math.floor(Math.random() * availableUpgrade.length);

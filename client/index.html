@@ -138,6 +138,7 @@
 		self.score = initPack.score;
 		self.username = initPack.username;
 		self.mouseAngle = initPack.mouseAngle;
+		self.isTripleShot = initPack.isTripleShot;
 
 		self.draw = function () {
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
@@ -153,17 +154,28 @@
 			ctx.arc(x, y, 20, 0, Math.PI * 2); // Assuming the player's radius is 20
 			ctx.fill();
 			// barrel
-			var angleInRadians = self.mouseAngle * Math.PI / 180;
-			ctx.save();
-			ctx.translate(x, y);
-			ctx.rotate(angleInRadians);
-			ctx.fillStyle = 'gray';
-			ctx.fillRect(20, -7.5, 20, 15);
-			ctx.restore();
+			if (self.isTripleShot) {
+				drawBarrel(self.mouseAngle - 30);
+				drawBarrel(self.mouseAngle);
+				drawBarrel(self.mouseAngle + 30);
+			} else {
+				drawBarrel(self.mouseAngle);
+			}
 
 			ctx.fillStyle = 'white';
 			var textWidth = ctx.measureText(self.username).width;
 			ctx.fillText(self.username, x - textWidth / 2, y + 50);
+
+		}
+
+		const drawBarrel = (angle) => {
+			var angleInRadians = angle * Math.PI / 180;
+			ctx.save();
+			ctx.translate(self.x - Player.list[selfId].x + WIDTH / 2, self.y - Player.list[selfId].y + HEIGHT / 2);
+			ctx.rotate(angleInRadians);
+			ctx.fillStyle = 'gray';
+			ctx.fillRect(20, -7.5, 20, 15);
+			ctx.restore();
 		}
 
 		Player.list[self.id] = self;
@@ -264,6 +276,9 @@
 					p.username = pack.username;
 				if (pack.mouseAngle !== undefined) {
 					p.mouseAngle = pack.mouseAngle;
+				}
+				if(pack.isTripleShot !== undefined){
+					p.isTripleShot = pack.isTripleShot;
 				}
 			}
 		}
