@@ -6,11 +6,13 @@ const {
 
 var initPack = {
 	player: [],
-	bullet: []
+	bullet: [],
+	upgrade: [],
 };
 var removePack = {
 	player: [],
-	bullet: []
+	bullet: [],
+	upgrade: [],
 };
 
 var MAP_WIDTH = array2D[0].length * TILE_SIZE;
@@ -58,20 +60,26 @@ Entity.getFrameUpdateData = function () {
 		initPack: {
 			player: initPack.player,
 			bullet: initPack.bullet,
+			upgrade: initPack.upgrade,
+			
 		},
 		removePack: {
 			player: removePack.player,
 			bullet: removePack.bullet,
+			upgrade: removePack.upgrade,
 		},
 		updatePack: {
 			player: Player.update(),
 			bullet: Bullet.update(),
+			upgrade: Upgrade.update(),
 		}
 	};
 	initPack.player = [];
 	initPack.bullet = [];
+	initPack.upgrade = [];
 	removePack.player = [];
 	removePack.bullet = [];
+	removePack.upgrade = [];
 	return pack;
 }
 
@@ -199,6 +207,7 @@ Player.onConnect = function (socket, username) {
 		selfId: socket.id,
 		player: Player.getAllInitPack(),
 		bullet: Bullet.getAllInitPack(),
+		upgrade: Upgrade.getAllInitPack(),
 	})
 }
 
@@ -343,8 +352,106 @@ Bullet.getAllInitPack = function () {
 	return bullets;
 }
 
+var Upgrade = function(param){
+	var self = Entity(param);
+	self.id = Math.random();
+	self.toRemove = false;
+	self.radius = param.radius;
+	self.type = param.type;
+	// self.name = self.getRandomUpgrade(param.type);
+
+	// Despawn after 15 seconds
+    setTimeout(function () {
+        self.toRemove = true;
+    }, 15000);
+
+	self.update = function(){
+		for (var i in Player.list) {
+			var player = Player.list[i];
+			if(self.getDistance(player) < 32){
+				self.applyEffect(player, self.type);
+				self.toRemove = true;
+			}
+		}
+	}
+
+	self.applyEffect = function(player, type){
+		self.toRemove = true;
+	}
+
+	self.getRandomUpgrade = function(type) {
+		const buffUpgrade = ['bullet speed', 'bullet size', 'immunity', 'health restore'];
+		const gunUpgrade = ['penta shot', 'phoenix shot', 'double rebounder'];
+	
+		let availableUpgrade = type === 'buff' ? buffUpgrade : gunUpgrade;
+		let randomIndex = Math.floor(Math.random() * availableUpgrade.length);
+	
+		return availableUpgrade[randomIndex];
+	}
+
+	self.getInitPack = function () {
+		return {
+			id: self.id,
+			x: self.x,
+			y: self.y,
+			type: self.type,
+			radius: self.radius,
+		};
+	}
+	self.getUpdatePack = function () {
+		return {
+			id: self.id,
+			x: self.x,
+			y: self.y,
+			type: self.type,
+			radius: self.radius,
+		};
+	}
+
+	Upgrade.list[self.id] = self;
+	initPack.upgrade.push(self.getInitPack());
+    return self;
+}
+
+Upgrade.list = {};
+
+Upgrade.update = function () {
+	var pack = [];
+	for (var i in Upgrade.list) {
+		var upgrade = Upgrade.list[i];
+		upgrade.update();
+		if (upgrade.toRemove) {
+			delete Upgrade.list[i];
+			removePack.upgrade.push(upgrade.id);
+		} else
+			pack.push(upgrade.getUpdatePack());
+	}
+	if(pack) console.log(pack)
+	return pack;
+}
+
+Upgrade.getAllInitPack = function () {
+	var upgrades = [];
+	for (var i in Upgrade.list)
+		upgrades.push(Upgrade.list[i].getInitPack());
+	return upgrades;
+}
+
+// Spawning upgrades
+setInterval(function () {
+    var type = Math.random() < 0.5 ? 'buff' : 'gun';
+    var spawnTile = randomNonWallTile();
+    Upgrade({
+		radius: 32,
+        type: type,
+        x: spawnTile.x * TILE_SIZE + TILE_SIZE / 2,
+        y: spawnTile.y * TILE_SIZE + TILE_SIZE / 2,
+    });
+}, 10000); // Every 10 seconds
+
 module.exports = {
 	Entity,
 	Player,
-	Bullet
+	Bullet,
+	Upgrade
 };

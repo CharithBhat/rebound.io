@@ -199,6 +199,38 @@
 	}
 	Bullet.list = {};
 
+	var Upgrade = function (initPack) {
+		var self = {};
+		self.id = initPack.id;
+		self.x = initPack.x;
+		self.y = initPack.y;
+		self.type = initPack.type;
+		self.radius = initPack.radius;
+
+		self.draw = function () {
+			// var width = Img.bullet.width / 2;
+			// var height = Img.bullet.height / 2;
+
+			var x = self.x - Player.list[selfId].x + WIDTH / 2;
+			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
+
+			// ctx.drawImage(Img.bullet,
+			// 	0, 0, Img.bullet.width, Img.bullet.height,
+			// 	x - width / 2, y - height / 2, width, height);
+
+			console.log('should be drawing upgrades.')
+
+			ctx.fillStyle = self.type === 'buff' ? 'blue' : 'purple';
+			ctx.beginPath();
+			ctx.arc(x, y, self.radius, 0, Math.PI * 2); //32 is raidus
+			ctx.fill();
+		}
+
+		Upgrade.list[self.id] = self;
+		return self;
+	}
+	Upgrade.list = {};
+
 	var selfId = null;
 
 	socket.on('init', function (data) {
@@ -210,6 +242,9 @@
 		}
 		for (var i = 0; i < data.bullet.length; i++) {
 			new Bullet(data.bullet[i]);
+		}
+		for (var i = 0; i < data.upgrade.length; i++) {
+			new Upgrade(data.upgrade[i]);
 		}
 	});
 
@@ -241,6 +276,22 @@
 					b.y = pack.y;
 			}
 		}
+		for (var i = 0; i < data.upgrade.length; i++) {
+			var pack = data.upgrade[i];
+			var u = Upgrade.list[data.upgrade[i].id];
+			if (u) {
+				if (pack.x !== undefined)
+					u.x = pack.x;
+				if (pack.y !== undefined)
+					u.y = pack.y;
+				if (pack.type !== undefined) {
+					u.type = pack.type;
+				}
+				if(pack.radius !== undefined){
+					u.radius = pack.radius;
+				}
+			}
+		}
 	});
 
 	socket.on('remove', function (data) {
@@ -250,6 +301,9 @@
 		}
 		for (var i = 0; i < data.bullet.length; i++) {
 			delete Bullet.list[data.bullet[i]];
+		}
+		for (var i = 0; i < data.upgrade.length; i++) {
+			delete Upgrade.list[data.upgrade[i]];
 		}
 	});
 
@@ -263,18 +317,14 @@
 			Player.list[i].draw();
 		for (var i in Bullet.list)
 			Bullet.list[i].draw();
+		for (var i in Upgrade.list)
+			Upgrade.list[i].draw();
 	}, FPS);
 
 	var drawMap = function () {
 		var player = Player.list[selfId];
 		var x = WIDTH / 2 - player.x;
 		var y = HEIGHT / 2 - player.y;
-		// ctx.drawImage(Img.map['field'], x, y);
-
-		// ctx.drawImage(Img.map['field'], 0, 0, Img.map['field'].width, Img.map['field'].height, x, y,
-		// 	Img.map['field'].width,
-		// 	Img.map['field'].height,
-		// );
 
 		ctx.drawImage(Img.map['field'], 0, 0, Img.map['field'].width, Img.map['field'].height, x, y,
 			COLLISION_ARRAY_SIZE * TILE_SIZE,
