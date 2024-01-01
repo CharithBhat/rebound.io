@@ -147,35 +147,18 @@
 			ctx.fillStyle = 'green';
 			ctx.fillRect(x - hpWidth / 2, y - 40, hpWidth, 4);
 
-			// if (Player.list[self.id].username === 'char') {
-			// 	var width = Img.otherPlayer.width * 2;
-			// 	var height = Img.otherPlayer.height * 2;
-
-
-			// 	ctx.drawImage(Img.otherPlayer,
-			// 		0, 0, Img.otherPlayer.width, Img.otherPlayer.height,
-			// 		x - width / 2, y - height / 2, width, height);
-			// } else {
-			// 	var width = Img.player.width * 2;
-			// 	var height = Img.player.height * 2;
-
-
-			// 	ctx.drawImage(Img.player,
-			// 		0, 0, Img.player.width, Img.player.height,
-			// 		x - width / 2, y - height / 2, width, height);
-			// }
-
 			// Draw the player's body as a circle
 			ctx.fillStyle = 'blue';
 			ctx.beginPath();
 			ctx.arc(x, y, 20, 0, Math.PI * 2); // Assuming the player's radius is 20
 			ctx.fill();
 			// barrel
+			var angleInRadians = self.mouseAngle * Math.PI / 180;
 			ctx.save();
 			ctx.translate(x, y);
-			ctx.rotate(self.mouseAngle);
+			ctx.rotate(angleInRadians);
 			ctx.fillStyle = 'gray';
-			ctx.fillRect(20, -5, 30, 10);
+			ctx.fillRect(20, -7.5, 20, 15);
 			ctx.restore();
 
 			ctx.fillStyle = 'white';
@@ -203,10 +186,6 @@
 
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
-
-			// ctx.drawImage(Img.bullet,
-			// 	0, 0, Img.bullet.width, Img.bullet.height,
-			// 	x - width / 2, y - height / 2, width, height);
 
 			ctx.fillStyle = 'blue';
 			ctx.beginPath();
@@ -283,7 +262,7 @@
 					p.score = pack.score;
 				if (pack.username !== undefined)
 					p.username = pack.username;
-				if(pack.mouseAngle !== undefined){
+				if (pack.mouseAngle !== undefined) {
 					p.mouseAngle = pack.mouseAngle;
 				}
 			}
@@ -430,8 +409,12 @@
 		var mouseX = event.clientX - ctx.canvas.getBoundingClientRect().left;
 		var mouseY = event.clientY - ctx.canvas.getBoundingClientRect().top;
 
-		var dx = mouseX - (player.x - Player.list[selfId].x + WIDTH / 2);
-		var dy = mouseY - (player.y - Player.list[selfId].y + HEIGHT / 2);
+		// var dx = mouseX - (player.x - Player.list[selfId].x + WIDTH / 2);
+		// var dy = mouseY - (player.y - Player.list[selfId].y + HEIGHT / 2);
+
+		var dx = mouseX - (WIDTH / 2);
+		var dy = mouseY - (HEIGHT / 2);
+
 
 		var angle = Math.atan2(dy, dx) / Math.PI * 180;
 		socket.emit('keyPress', {

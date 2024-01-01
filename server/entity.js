@@ -131,11 +131,17 @@ Player = function (param) {
 	self.shootBullet = function (angle) {
 		var currentTime = Date.now();
 		if (currentTime > self.nextShotTime) {
+			const barrelLength = 20;
+			const barrelThickness = 15;
+			var angleInRadians = angle * Math.PI / 180;
+			// Calculate bullet's starting position at the end of the barrel
+			var bulletX = self.x + (barrelLength + barrelThickness / 2) * Math.cos(angleInRadians);
+			var bulletY = self.y + (barrelLength + barrelThickness / 2) * Math.sin(angleInRadians);
 			Bullet({
 				parent: self.id,
 				angle: angle,
-				x: self.x,
-				y: self.y,
+				x: bulletX,
+				y: bulletY,
 				bulletSpeed: self.bulletSpeed,
 				bulletRadius: self.bulletRadius,
 			});
