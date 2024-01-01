@@ -102,6 +102,7 @@
 	});
 
 
+
 	// chatForm.onsubmit = function (e) {
 	// 	e.preventDefault();
 	// 	if (chatInput.value[0] === '/')
@@ -136,6 +137,7 @@
 		self.hpMax = initPack.hpMax;
 		self.score = initPack.score;
 		self.username = initPack.username;
+		self.mouseAngle = initPack.mouseAngle;
 
 		self.draw = function () {
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
@@ -145,23 +147,36 @@
 			ctx.fillStyle = 'green';
 			ctx.fillRect(x - hpWidth / 2, y - 40, hpWidth, 4);
 
-			if (Player.list[self.id].username === 'char') {
-				var width = Img.otherPlayer.width * 2;
-				var height = Img.otherPlayer.height * 2;
+			// if (Player.list[self.id].username === 'char') {
+			// 	var width = Img.otherPlayer.width * 2;
+			// 	var height = Img.otherPlayer.height * 2;
 
 
-				ctx.drawImage(Img.otherPlayer,
-					0, 0, Img.otherPlayer.width, Img.otherPlayer.height,
-					x - width / 2, y - height / 2, width, height);
-			} else {
-				var width = Img.player.width * 2;
-				var height = Img.player.height * 2;
+			// 	ctx.drawImage(Img.otherPlayer,
+			// 		0, 0, Img.otherPlayer.width, Img.otherPlayer.height,
+			// 		x - width / 2, y - height / 2, width, height);
+			// } else {
+			// 	var width = Img.player.width * 2;
+			// 	var height = Img.player.height * 2;
 
 
-				ctx.drawImage(Img.player,
-					0, 0, Img.player.width, Img.player.height,
-					x - width / 2, y - height / 2, width, height);
-			}
+			// 	ctx.drawImage(Img.player,
+			// 		0, 0, Img.player.width, Img.player.height,
+			// 		x - width / 2, y - height / 2, width, height);
+			// }
+
+			// Draw the player's body as a circle
+			ctx.fillStyle = 'blue';
+			ctx.beginPath();
+			ctx.arc(x, y, 20, 0, Math.PI * 2); // Assuming the player's radius is 20
+			ctx.fill();
+			// barrel
+			ctx.save();
+			ctx.translate(x, y);
+			ctx.rotate(self.mouseAngle);
+			ctx.fillStyle = 'gray';
+			ctx.fillRect(20, -5, 30, 10);
+			ctx.restore();
 
 			ctx.fillStyle = 'white';
 			var textWidth = ctx.measureText(self.username).width;
@@ -175,12 +190,12 @@
 	}
 	Player.list = {};
 
-
 	var Bullet = function (initPack) {
 		var self = {};
 		self.id = initPack.id;
 		self.x = initPack.x;
 		self.y = initPack.y;
+		self.radius = initPack.radius;
 
 		self.draw = function () {
 			var width = Img.bullet.width / 2;
@@ -189,9 +204,14 @@
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
 
-			ctx.drawImage(Img.bullet,
-				0, 0, Img.bullet.width, Img.bullet.height,
-				x - width / 2, y - height / 2, width, height);
+			// ctx.drawImage(Img.bullet,
+			// 	0, 0, Img.bullet.width, Img.bullet.height,
+			// 	x - width / 2, y - height / 2, width, height);
+
+			ctx.fillStyle = 'blue';
+			ctx.beginPath();
+			ctx.arc(x, y, self.radius, 0, Math.PI * 2);
+			ctx.fill();
 		}
 
 		Bullet.list[self.id] = self;
@@ -206,24 +226,23 @@
 		self.y = initPack.y;
 		self.type = initPack.type;
 		self.radius = initPack.radius;
+		self.upgradeName = initPack.upgradeName;
 
 		self.draw = function () {
-			// var width = Img.bullet.width / 2;
-			// var height = Img.bullet.height / 2;
 
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
-
-			// ctx.drawImage(Img.bullet,
-			// 	0, 0, Img.bullet.width, Img.bullet.height,
-			// 	x - width / 2, y - height / 2, width, height);
-
-			console.log('should be drawing upgrades.')
 
 			ctx.fillStyle = self.type === 'buff' ? 'blue' : 'purple';
 			ctx.beginPath();
 			ctx.arc(x, y, self.radius, 0, Math.PI * 2); //32 is raidus
 			ctx.fill();
+
+			ctx.fillStyle = 'white';
+			ctx.font = '14px Arial';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.fillText(self.upgradeName, x, y);
 		}
 
 		Upgrade.list[self.id] = self;
@@ -264,6 +283,9 @@
 					p.score = pack.score;
 				if (pack.username !== undefined)
 					p.username = pack.username;
+				if(pack.mouseAngle !== undefined){
+					p.mouseAngle = pack.mouseAngle;
+				}
 			}
 		}
 		for (var i = 0; i < data.bullet.length; i++) {
@@ -287,7 +309,7 @@
 				if (pack.type !== undefined) {
 					u.type = pack.type;
 				}
-				if(pack.radius !== undefined){
+				if (pack.radius !== undefined) {
 					u.radius = pack.radius;
 				}
 			}

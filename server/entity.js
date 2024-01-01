@@ -18,7 +18,7 @@ var removePack = {
 var MAP_WIDTH = array2D[0].length * TILE_SIZE;
 var MAP_HEIGHT = array2D.length * TILE_SIZE;
 
-const BUFF_DURATION = 5000; // 5 seconds
+const BUFF_DURATION = 10000; // 10 seconds
 
 Entity = function (param) {
 	var spawnTile = randomNonWallTile();
@@ -63,7 +63,7 @@ Entity.getFrameUpdateData = function () {
 			player: initPack.player,
 			bullet: initPack.bullet,
 			upgrade: initPack.upgrade,
-			
+
 		},
 		removePack: {
 			player: removePack.player,
@@ -112,9 +112,10 @@ Player = function (param) {
 	self.socket = param.socket;
 
 	// buff related metrics related metrics
-	self.fireRate = 500;  // 1000ms = 1 shot/s, 500 = 2 shots/s
+	self.fireRate = 500; // 1000ms = 1 shot/s, 500 = 2 shots/s
 	self.nextShotTime = 0;
 	self.bulletSpeed = 10;
+	self.bulletRadius = 10;
 	self.isImmune = false;
 
 	var super_update = self.update;
@@ -136,8 +137,9 @@ Player = function (param) {
 				x: self.x,
 				y: self.y,
 				bulletSpeed: self.bulletSpeed,
+				bulletRadius: self.bulletRadius,
 			});
-	
+
 			self.nextShotTime = currentTime + self.fireRate; // Set the next allowed shot time
 		}
 	}
@@ -172,6 +174,7 @@ Player = function (param) {
 			hpMax: self.hpMax,
 			score: self.score,
 			username: self.username,
+			mouseAngle: self.mouseAngle,
 		};
 	}
 	self.getUpdatePack = function () {
@@ -182,6 +185,7 @@ Player = function (param) {
 			hp: self.hp,
 			score: self.score,
 			username: self.username,
+			mouseAngle: self.mouseAngle,
 		}
 	}
 
@@ -198,6 +202,7 @@ Player.onConnect = function (socket, username) {
 		socket: socket,
 	}); /// here we need to give the username as a param eventrually
 	socket.on('keyPress', function (data) {
+
 		if (data.inputId === 'left')
 			player.pressingLeft = data.state;
 		else if (data.inputId === 'right')
@@ -210,6 +215,7 @@ Player.onConnect = function (socket, username) {
 			player.pressingAttack = data.state;
 		else if (data.inputId === 'mouseAngle')
 			player.mouseAngle = data.state;
+
 	});
 
 	socket.on('sendMsgToServer', function (data) {
@@ -266,6 +272,9 @@ var Bullet = function (param) {
 	self.parent = param.parent;
 	self.collisionCount = 0;
 	self.toRemove = false;
+	self.radius = param.bulletRadius;
+
+
 	var super_update = self.update;
 	self.update = function () {
 		nextX = self.x + self.spdX;
@@ -276,12 +285,12 @@ var Bullet = function (param) {
 		}
 		super_update();
 
-		if(self.collisionCount > 0){ // player harmed by ricochet's only
+		if (self.collisionCount > 0) { // player harmed by ricochet's only
 			for (var i in Player.list) {
 				var p = Player.list[i];
 				if (self.getDistance(p) < 32 && self.parent !== p.id) {
-					p.hp -= 1;
-	
+					if (!p.isImmune) p.hp -= 1;
+
 					if (p.hp <= 0) {
 						var shooter = Player.list[self.parent];
 						if (shooter)
@@ -291,7 +300,7 @@ var Bullet = function (param) {
 						p.x = spawnTile.x * TILE_SIZE + TILE_SIZE / 2; // TILE_SIZE/2 is just to center the player on the tile. so it looks good
 						p.y = spawnTile.y * TILE_SIZE + TILE_SIZE / 2;
 					}
-					self.toRemove = true;
+					self.toRemove = true; // not  always
 				}
 			}
 		}
@@ -302,7 +311,7 @@ var Bullet = function (param) {
 			id: self.id,
 			x: self.x,
 			y: self.y,
-			map: self.map,
+			radius: self.radius,
 		};
 	}
 	self.getUpdatePack = function () {
@@ -310,6 +319,7 @@ var Bullet = function (param) {
 			id: self.id,
 			x: self.x,
 			y: self.y,
+			radius: self.radius,
 		};
 	}
 
@@ -367,7 +377,7 @@ Bullet.getAllInitPack = function () {
 	return bullets;
 }
 
-var Upgrade = function(param){
+var Upgrade = function (param) {
 	var self = Entity(param);
 	self.id = Math.random();
 	self.toRemove = false;
@@ -376,81 +386,71 @@ var Upgrade = function(param){
 	self.upgradeName = getRandomUpgrade(param.type);
 
 	// Despawn after 15 seconds
-    setTimeout(function () {
-        self.toRemove = true;
-    }, 15000);
+	setTimeout(function () {
+		self.toRemove = true;
+	}, 15000);
 
-	self.update = function(){
+	self.update = function () {
 		for (var i in Player.list) {
 			var player = Player.list[i];
-			if(self.getDistance(player) < 32){
-				self.applyEffect(player, self.type);
+			if (self.getDistance(player) < 32) {
+				self.applyEffect(player, self.upgradeName);
 				self.toRemove = true;
 			}
 		}
 	}
 
 	// Example applyEffect function within Upgrade
-self.applyEffect = function(player, upgradeName){
+	self.applyEffect = function (player, upgradeName) {
 
-    // Apply the effect based on the upgrade name
-    switch(upgradeName) {
+		// Apply the effect based on the upgrade name
+		switch (upgradeName) {
 
-		// buffs
-        case 'bullet speed':
-            player.bulletSpeed += 5; 
-			setTimeout(() => {
-                player.bulletSpeed -= 5;
-            }, BUFF_DURATION); 
-            break;
-        case 'bullet size':
-            player.bulletSize += 2; 
-			setTimeout(() => {
-                player.bulletSize -= 2;
-            }, BUFF_DURATION); 
-            break;
-		case 'bullet fireRate':
-			player.fireRate /= 2; // Example: Fire twice as often
-            setTimeout(() => {
-                player.fireRate *= 2; // Revert fire rate after 5 seconds
-            }, BUFF_DURATION);
-            break;
-        case 'immunity':
-            player.isImmune = true;
-            setTimeout(() => {
-                player.isImmune = false;
-            }, 5000); // Immunity for 5 seconds
-            break;
-        case 'health restore':
-            player.hp = player.hpMax;
-            break;
+			// buffs
+			case 'bullet speed': // done
+				player.bulletSpeed *= 2;
+				setTimeout(() => {
+					player.bulletSpeed /= 2;
+				}, BUFF_DURATION);
+				break;
+			case 'bullet size': // only size change, collision needs to change
+				player.bulletRadius *= 2;
+				setTimeout(() => {
+					player.bulletRadius /= 2;
+				}, BUFF_DURATION);
+				break;
+			case 'bullet fireRate': // done
+				player.fireRate /= 2; // Example: Fire twice as often
+				setTimeout(() => {
+					player.fireRate *= 2; // Revert fire rate after 5 seconds
+				}, BUFF_DURATION);
+				break;
+			case 'immunity': // should work. needs test
+				player.isImmune = true;
+				setTimeout(() => {
+					player.isImmune = false;
+				}, 5000); // Immunity for 5 seconds
+				break;
+			case 'health restore': // done
+				player.hp = player.hpMax;
+				break;
 
-		// guns
-        case 'penta shot':
-            player.gunType = 'penta shot';
-            break;
-        case 'phoenix shot':
-            player.gunType = 'phoenix shot';
-            break;
-        case 'double rebounder':
-            player.gunType = 'double rebounder';
-            break;
-        default:
-            console.log('Unknown upgrade:', upgradeName);
-    }
-    self.toRemove = true; // remove the upgrade from the canvas
-}
-
-
-	self.getRandomUpgrade = function(type) {
-		const buffUpgrade = ['bullet speed', 'bullet size', 'immunity', 'health restore'];
-		const gunUpgrade = ['penta shot', 'phoenix shot', 'double rebounder'];
-	
-		let availableUpgrade = type === 'buff' ? buffUpgrade : gunUpgrade;
-		let randomIndex = Math.floor(Math.random() * availableUpgrade.length);
-	
-		return availableUpgrade[randomIndex];
+				// guns
+			case 'penta shot':
+				player.gunType = 'penta shot';
+				break;
+			case 'phoenix shot':
+				player.gunType = 'phoenix shot';
+				break;
+			case 'double rebounder':
+				player.gunType = 'double rebounder';
+				break;
+			default:
+				console.log('Unknown upgrade:', upgradeName);
+		}
+		self.toRemove = true; // remove the upgrade from the canvas
 	}
+
 
 	self.getInitPack = function () {
 		return {
@@ -459,6 +459,7 @@ self.applyEffect = function(player, upgradeName){
 			y: self.y,
 			type: self.type,
 			radius: self.radius,
+			upgradeName: self.upgradeName,
 		};
 	}
 	self.getUpdatePack = function () {
@@ -468,12 +469,13 @@ self.applyEffect = function(player, upgradeName){
 			y: self.y,
 			type: self.type,
 			radius: self.radius,
+			upgradeName: self.upgradeName,
 		};
 	}
 
 	Upgrade.list[self.id] = self;
 	initPack.upgrade.push(self.getInitPack());
-    return self;
+	return self;
 }
 
 Upgrade.list = {};
@@ -499,16 +501,26 @@ Upgrade.getAllInitPack = function () {
 	return upgrades;
 }
 
+getRandomUpgrade = function (type) {
+	const buffUpgrade = ['bullet speed', 'bullet size', 'immunity', 'health restore'];
+	const gunUpgrade = ['penta shot', 'phoenix shot', 'double rebounder'];
+
+	let availableUpgrade = type === 'buff' ? buffUpgrade : gunUpgrade;
+	let randomIndex = Math.floor(Math.random() * availableUpgrade.length);
+
+	return availableUpgrade[randomIndex];
+}
+
 // Spawning upgrades
 setInterval(function () {
-    var type = Math.random() < 0.5 ? 'buff' : 'gun';
-    var spawnTile = randomNonWallTile();
-    Upgrade({
+	var type = Math.random() < 0.5 ? 'buff' : 'gun';
+	var spawnTile = randomNonWallTile();
+	Upgrade({
 		radius: 32,
-        type: type,
-        x: spawnTile.x * TILE_SIZE + TILE_SIZE / 2,
-        y: spawnTile.y * TILE_SIZE + TILE_SIZE / 2,
-    });
+		type: type,
+		x: spawnTile.x * TILE_SIZE + TILE_SIZE / 2,
+		y: spawnTile.y * TILE_SIZE + TILE_SIZE / 2,
+	});
 }, 10000); // Every 10 seconds
 
 module.exports = {
