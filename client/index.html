@@ -149,10 +149,14 @@
 			ctx.fillRect(x - hpWidth / 2, y - 40, hpWidth, 4);
 
 			// Draw the player's body as a circle
-			ctx.fillStyle = 'blue';
+			ctx.fillStyle = '#2596be';
 			ctx.beginPath();
 			ctx.arc(x, y, 20, 0, Math.PI * 2); // Assuming the player's radius is 20
 			ctx.fill();
+
+			ctx.strokeStyle = '#134b5f';
+			ctx.lineWidth = 2;
+			ctx.stroke();
 			// barrel
 			if (self.isTripleShot) {
 				drawBarrel(self.mouseAngle - 30);
@@ -174,7 +178,11 @@
 			ctx.translate(self.x - Player.list[selfId].x + WIDTH / 2, self.y - Player.list[selfId].y + HEIGHT / 2);
 			ctx.rotate(angleInRadians);
 			ctx.fillStyle = 'gray';
-			ctx.fillRect(20, -7.5, 20, 15);
+			ctx.fillRect(20, -9, 20, 18);
+
+			ctx.strokeStyle = '#414a4d';
+			ctx.lineWidth = 2;
+			ctx.strokeRect(20, -9, 20, 18);
 			ctx.restore();
 		}
 
@@ -199,10 +207,14 @@
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
 
-			ctx.fillStyle = 'blue';
+			ctx.fillStyle = '#2596be';
 			ctx.beginPath();
 			ctx.arc(x, y, self.radius, 0, Math.PI * 2);
 			ctx.fill();
+
+			ctx.strokeStyle = '#134b5f'; 
+			ctx.lineWidth = 2; 
+			ctx.stroke();
 		}
 
 		Bullet.list[self.id] = self;
@@ -277,7 +289,7 @@
 				if (pack.mouseAngle !== undefined) {
 					p.mouseAngle = pack.mouseAngle;
 				}
-				if(pack.isTripleShot !== undefined){
+				if (pack.isTripleShot !== undefined) {
 					p.isTripleShot = pack.isTripleShot;
 				}
 			}

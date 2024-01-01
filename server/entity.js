@@ -150,7 +150,7 @@ Player = function (param) {
 		var currentTime = Date.now();
 		if (currentTime > self.nextShotTime) {
 			const barrelLength = 20;
-			const barrelThickness = 15;
+			const barrelThickness = 18;
 			var angleInRadians = (angle + offset) * Math.PI / 180;
 			// Calculate bullet's starting position at the end of the barrel
 			var bulletX = self.x + (barrelLength + barrelThickness / 2) * Math.cos(angleInRadians);
@@ -299,6 +299,7 @@ var Bullet = function (param) {
 	self.toRemove = false;
 	self.radius = param.bulletRadius;
 	self.collisionCap = param.collisionCap;
+	self.hasBouncedThisFrame = false;
 
 
 	var super_update = self.update;
@@ -369,10 +370,24 @@ var Bullet = function (param) {
 		var minDistance = Math.min(distanceToLeft, distanceToRight, distanceToTop, distanceToBottom);
 
 		// Determine which edge was hit based on the minimum distance
+		// if (minDistance === distanceToLeft || minDistance === distanceToRight) {
+		// 	self.spdX = -self.spdX; // Bounce off a vertical edge
+		// } else {
+		// 	self.spdY = -self.spdY; // Bounce off a horizontal edge
+		// }
+
 		if (minDistance === distanceToLeft || minDistance === distanceToRight) {
-			self.spdX = -self.spdX; // Bounce off a vertical edge
+			// Bounce off a vertical edge
+			if (!self.hasBouncedThisFrame) {
+				self.spdX = -self.spdX;
+				self.hasBouncedThisFrame = true;
+			}
 		} else {
-			self.spdY = -self.spdY; // Bounce off a horizontal edge
+			// Bounce off a horizontal edge
+			if (!self.hasBouncedThisFrame) {
+				self.spdY = -self.spdY;
+				self.hasBouncedThisFrame = true;
+			}
 		}
 	}
 
@@ -386,6 +401,7 @@ Bullet.update = function () {
 	var pack = [];
 	for (var i in Bullet.list) {
 		var bullet = Bullet.list[i];
+		bullet.hasBouncedThisFrame = false;
 		bullet.update();
 		if (bullet.toRemove) {
 			delete Bullet.list[i];
