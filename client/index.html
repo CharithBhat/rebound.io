@@ -139,31 +139,40 @@
 		self.username = initPack.username;
 		self.mouseAngle = initPack.mouseAngle;
 		self.isTripleShot = initPack.isTripleShot;
+		self.isHit = initPack.isHit;
 
 		self.draw = function () {
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
 
-				// Draw the player's body as a circle
-			if (self.id == selfId) {
-				ctx.fillStyle = '#2596be';
+			if (self.isHit) {
+				ctx.fillStyle = 'white'; // Semi-transparent red
 				ctx.beginPath();
-				ctx.arc(x, y, 20, 0, Math.PI * 2); // Assuming the player's radius is 20
+				ctx.arc(x, y, 20, 0, Math.PI * 2);
 				ctx.fill();
-
-				ctx.strokeStyle = '#134b5f';
-				ctx.lineWidth = 2;
-				ctx.stroke();
 			} else {
-				ctx.fillStyle = '#df444c';
-				ctx.beginPath();
-				ctx.arc(x, y, 20, 0, Math.PI * 2); // Assuming the player's radius is 20
-				ctx.fill();
+				// Draw the player's body as a circle
+				if (self.id == selfId) {
+					ctx.fillStyle = '#2596be';
+					ctx.beginPath();
+					ctx.arc(x, y, 20, 0, Math.PI * 2); // Assuming the player's radius is 20
+					ctx.fill();
 
-				ctx.strokeStyle = '#a33237';
-				ctx.lineWidth = 2;
-				ctx.stroke();
+					ctx.strokeStyle = '#134b5f';
+					ctx.lineWidth = 2;
+					ctx.stroke();
+				} else {
+					ctx.fillStyle = '#df444c';
+					ctx.beginPath();
+					ctx.arc(x, y, 20, 0, Math.PI * 2); // Assuming the player's radius is 20
+					ctx.fill();
+
+					ctx.strokeStyle = '#a33237';
+					ctx.lineWidth = 2;
+					ctx.stroke();
+				}
 			}
+
 
 			// barrel
 			if (self.isTripleShot) {
@@ -308,6 +317,9 @@
 				}
 				if (pack.isTripleShot !== undefined) {
 					p.isTripleShot = pack.isTripleShot;
+				}
+				if (pack.isHit !== undefined) {
+					p.isHit = pack.isHit;
 				}
 			}
 		}

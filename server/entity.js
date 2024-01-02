@@ -109,6 +109,7 @@ Player = function (param) {
 	self.hp = 10;
 	self.hpMax = 10;
 	self.score = 0;
+	self.isHit = false;
 	self.socket = param.socket;
 
 	// buff related metrics related metrics
@@ -126,6 +127,8 @@ Player = function (param) {
 	self.update = function () {
 		self.updateSpd();
 		super_update();
+
+		if (self.isHit && Date.now() - self.hitTime > 60) self.isHit = false;
 
 		var currentTime = Date.now();
 		if (self.pressingAttack && currentTime > self.nextShotTime) {
@@ -199,6 +202,7 @@ Player = function (param) {
 			username: self.username,
 			mouseAngle: self.mouseAngle,
 			isTripleShot: self.isTripleShot,
+			isHit: self.isHit,
 		};
 	}
 	self.getUpdatePack = function () {
@@ -211,6 +215,7 @@ Player = function (param) {
 			username: self.username,
 			mouseAngle: self.mouseAngle,
 			isTripleShot: self.isTripleShot,
+			isHit: self.isHit,
 		}
 	}
 
@@ -315,7 +320,8 @@ var Bullet = function (param) {
 				var p = Player.list[i];
 				if (self.getDistance(p) < 22 + self.bulletRadius && self.parent !== p.id) {
 					if (!p.isImmune) p.hp -= 1;
-
+					p.isHit = true;
+					p.hitTime = Date.now();
 					if (p.hp <= 0) {
 						var shooter = Player.list[self.parent];
 						if (shooter)
