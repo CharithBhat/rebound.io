@@ -286,8 +286,6 @@ Player.update = function () {
 
 // bullet 
 
-
-
 var Bullet = function (param) {
 	var self = Entity(param);
 	self.id = Math.random();
