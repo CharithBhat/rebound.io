@@ -410,7 +410,7 @@ var Bullet = function (param) {
 				self.spdX = -self.spdX;
 				self.spdY = -self.spdY;
 				return;
-			} 
+			}
 			if (neighborBottom === false) self.spdY = -self.spdY;
 			else self.spdX = -self.spdX;
 			return;

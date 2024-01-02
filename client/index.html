@@ -144,9 +144,10 @@
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
 
-			var hpWidth = 40 * self.hp / self.hpMax;
-			ctx.fillStyle = 'green';
-			ctx.fillRect(x - hpWidth / 2, y - 40, hpWidth, 4);
+			ctx.font = '20px Arial';
+			ctx.fillStyle = 'white';
+			var textWidth = ctx.measureText(self.username).width;
+			ctx.fillText(self.username, x - textWidth / 2, y - 50);
 
 			// Draw the player's body as a circle
 			ctx.fillStyle = '#2596be';
@@ -160,15 +161,15 @@
 			// barrel
 			if (self.isTripleShot) {
 				drawBarrel(self.mouseAngle - 30);
-				drawBarrel(self.mouseAngle);
 				drawBarrel(self.mouseAngle + 30);
+				drawBarrel(self.mouseAngle);
 			} else {
 				drawBarrel(self.mouseAngle);
 			}
 
-			ctx.fillStyle = 'white';
-			var textWidth = ctx.measureText(self.username).width;
-			ctx.fillText(self.username, x - textWidth / 2, y + 50);
+			var hpWidth = 50 * self.hp / self.hpMax;
+			ctx.fillStyle = 'green';
+			ctx.fillRect(x - hpWidth / 2, y + 40, hpWidth, 4);
 
 		}
 
@@ -212,8 +213,8 @@
 			ctx.arc(x, y, self.radius, 0, Math.PI * 2);
 			ctx.fill();
 
-			ctx.strokeStyle = '#134b5f'; 
-			ctx.lineWidth = 2; 
+			ctx.strokeStyle = '#134b5f';
+			ctx.lineWidth = 2;
 			ctx.stroke();
 		}
 
@@ -362,12 +363,15 @@
 
 
 	var drawScore = function () {
-		if (lastScore === Player.list[selfId].score)
+		var scoreText = "Kills: " + Player.list[selfId].score;
+		if (lastScore === scoreText)
 			return;
-		lastScore = Player.list[selfId].score;
+		lastScore = scoreText;
 		ctxUi.clearRect(0, 0, WIDTH, HEIGHT);
 		ctxUi.fillStyle = 'white';
-		ctxUi.fillText(Player.list[selfId].score, 0, 30);
+		ctxUi.font = "20px Arial"; // Set this to the desired font size
+		var textWidth = ctxUi.measureText(scoreText).width;
+		ctxUi.fillText(scoreText, WIDTH - textWidth - 10, 30); // Adjust the padding as needed
 	}
 	var lastScore = null;
 
