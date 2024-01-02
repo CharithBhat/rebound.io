@@ -375,11 +375,14 @@ var Bullet = function (param) {
 		var neighborRight = gridX < array2D[0].length - 1 && isPositionWall(array2D, pointX + TILE_SIZE, pointY);
 		var neighborBottom = gridY < array2D.length - 1 && isPositionWall(array2D, pointX, pointY + TILE_SIZE);
 		var neighborTop = gridY < array2D.length - 1 && isPositionWall(array2D, pointX, pointY - TILE_SIZE);
-
+		console.log('left:' + neighborLeft);
+		console.log('right:' + neighborRight);
+		console.log('top:' + neighborTop);
+		console.log('bottom:' + neighborBottom);
 		// corner case
 		if ((distanceToLeft < BUFFER || distanceToRight < BUFFER) && distanceToBottom < BUFFER) {
 
-			if ((distanceToLeft < BUFFER && neighborLeft === false) || (distanceToRight < BUFFER && neighborRight === false) && neighborBottom === false) {
+			if (((distanceToLeft < BUFFER && neighborLeft === false) || (distanceToRight < BUFFER && neighborRight === false)) && neighborBottom === false) {
 				self.spdX = -self.spdX;
 				self.spdY = -self.spdY;
 				return;
@@ -389,7 +392,7 @@ var Bullet = function (param) {
 			return;
 		} else if ((distanceToLeft < BUFFER || distanceToRight < BUFFER) && distanceToTop < BUFFER) {
 
-			if ((distanceToLeft < BUFFER && neighborLeft === false) || (distanceToRight < BUFFER && neighborRight === false) && neighborTop === false) {
+			if (((distanceToLeft < BUFFER && neighborLeft === false) || (distanceToRight < BUFFER && neighborRight === false)) && neighborTop === false) {
 				self.spdX = -self.spdX;
 				self.spdY = -self.spdY;
 				return;
