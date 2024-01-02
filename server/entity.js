@@ -299,7 +299,6 @@ var Bullet = function (param) {
 	self.toRemove = false;
 	self.radius = param.bulletRadius;
 	self.collisionCap = param.collisionCap;
-	self.hasBouncedThisFrame = false;
 
 
 	var super_update = self.update;
@@ -307,8 +306,9 @@ var Bullet = function (param) {
 		nextX = self.x + self.spdX;
 		nextY = self.y + self.spdY;
 		if (isPositionWall(array2D, nextX, nextY)) {
-			if (self.collisionCount == self.collisionCap) self.toRemove = true;
-			else self.ricochet(nextX, nextY);
+			if (self.collisionCount === self.collisionCap) {
+				self.toRemove = true;
+			} else self.ricochet(nextX, nextY);
 		}
 		super_update();
 
@@ -350,6 +350,37 @@ var Bullet = function (param) {
 		};
 	}
 
+	// self.ricochet = function (pointX, pointY) {
+	// 	self.collisionCount++;
+	// 	var gridX = Math.floor(pointX / TILE_SIZE);
+	// 	var gridY = Math.floor(pointY / TILE_SIZE);
+
+	// 	var leftEdge = gridX * TILE_SIZE;
+	// 	var rightEdge = (gridX + 1) * TILE_SIZE;
+	// 	var topEdge = gridY * TILE_SIZE;
+	// 	var bottomEdge = (gridY + 1) * TILE_SIZE;
+
+	// 	// Calculate distances to each edge from the point of impact
+	// 	var distanceToLeft = Math.abs(pointX - leftEdge);
+	// 	var distanceToRight = Math.abs(pointX - rightEdge);
+	// 	var distanceToTop = Math.abs(pointY - topEdge);
+	// 	var distanceToBottom = Math.abs(pointY - bottomEdge);
+
+	// 	// Find the minimum distance
+	// 	var minDistance = Math.min(distanceToLeft, distanceToRight, distanceToTop, distanceToBottom);
+
+	// 	var buffer = 5;
+
+	// 	if (minDistance === distanceToLeft || minDistance === distanceToRight) {
+	// 		self.spdX = -self.spdX;
+	// 		self.x += (self.spdX > 0 ? buffer : -buffer);
+	// 	} else {
+	// 		self.spdY = -self.spdY;
+	// 		self.y += (self.spdY > 0 ? buffer : -buffer);
+	// 	}
+
+	// }
+
 	self.ricochet = function (pointX, pointY) {
 		self.collisionCount++;
 		var gridX = Math.floor(pointX / TILE_SIZE);
@@ -366,30 +397,45 @@ var Bullet = function (param) {
 		var distanceToTop = Math.abs(pointY - topEdge);
 		var distanceToBottom = Math.abs(pointY - bottomEdge);
 
-		// Find the minimum distance
+		const BUFFER = 10;
+		var neighborLeft = gridX > 0 && isPositionWall(array2D, pointX - TILE_SIZE, pointY);
+		var neighborRight = gridX < array2D[0].length - 1 && isPositionWall(array2D, pointX + TILE_SIZE, pointY);
+		var neighborBottom = gridY < array2D.length - 1 && isPositionWall(array2D, pointX, pointY + TILE_SIZE);
+		var neighborTop = gridY < array2D.length - 1 && isPositionWall(array2D, pointX, pointY - TILE_SIZE);
+
+		// corner case
+		if ((distanceToLeft < BUFFER || distanceToRight < BUFFER) && distanceToBottom < BUFFER) {
+
+			if ((distanceToLeft < BUFFER && neighborLeft == false) || (distanceToRight < BUFFER && neighborRight == false) && neighborBottom == false) {
+				self.spdX = -self.spdX;
+				self.spdY = -self.spdY;
+				return;
+			} 
+			if (neighborBottom === false) self.spdY = -self.spdY;
+			else self.spdX = -self.spdX;
+			return;
+		} else if ((distanceToLeft < BUFFER || distanceToRight < BUFFER) && distanceToTop < BUFFER) {
+
+			if ((distanceToLeft < BUFFER && neighborLeft == false) || (distanceToRight < BUFFER && neighborRight == false) && neighborTop == false) {
+				self.spdX = -self.spdX;
+				self.spdY = -self.spdY;
+				return;
+			}
+			if (neighborTop === false) self.spdY = -self.spdY;
+			else self.spdX = -self.spdX;
+			return;
+		}
+		// non corner cases
 		var minDistance = Math.min(distanceToLeft, distanceToRight, distanceToTop, distanceToBottom);
 
-		// Determine which edge was hit based on the minimum distance
-		// if (minDistance === distanceToLeft || minDistance === distanceToRight) {
-		// 	self.spdX = -self.spdX; // Bounce off a vertical edge
-		// } else {
-		// 	self.spdY = -self.spdY; // Bounce off a horizontal edge
-		// }
-
 		if (minDistance === distanceToLeft || minDistance === distanceToRight) {
-			// Bounce off a vertical edge
-			if (!self.hasBouncedThisFrame) {
-				self.spdX = -self.spdX;
-				self.hasBouncedThisFrame = true;
-			}
+			self.spdX = -self.spdX;
 		} else {
-			// Bounce off a horizontal edge
-			if (!self.hasBouncedThisFrame) {
-				self.spdY = -self.spdY;
-				self.hasBouncedThisFrame = true;
-			}
+			self.spdY = -self.spdY;
 		}
+
 	}
+
 
 	Bullet.list[self.id] = self;
 	initPack.bullet.push(self.getInitPack());
@@ -401,7 +447,6 @@ Bullet.update = function () {
 	var pack = [];
 	for (var i in Bullet.list) {
 		var bullet = Bullet.list[i];
-		bullet.hasBouncedThisFrame = false;
 		bullet.update();
 		if (bullet.toRemove) {
 			delete Bullet.list[i];
@@ -551,7 +596,9 @@ Upgrade.getAllInitPack = function () {
 }
 
 getRandomUpgrade = function (type) {
-	const buffUpgrade = ['bullet speed', 'bullet size', 'immunity', 'health restore', 'bullet fireRate'];
+
+	// removed bullet speed, its too fast, bullet goes deep into wall and delete
+	const buffUpgrade = ['bullet size', 'immunity', 'health restore', 'bullet fireRate'];
 	const gunUpgrade = ['triple shot', 'phoenix shot', 'double rebounder'];
 
 	let availableUpgrade = type === 'buff' ? buffUpgrade : gunUpgrade;
