@@ -299,7 +299,7 @@ var Bullet = function (param) {
 	self.toRemove = false;
 	self.radius = param.bulletRadius;
 	self.collisionCap = param.collisionCap;
-
+	self.bulletRadius = param.bulletRadius;
 
 	var super_update = self.update;
 	self.update = function () {
@@ -315,7 +315,7 @@ var Bullet = function (param) {
 		if (self.collisionCount > 0) { // player harmed by ricochet's only
 			for (var i in Player.list) {
 				var p = Player.list[i];
-				if (self.getDistance(p) < 32 && self.parent !== p.id) {
+				if (self.getDistance(p) < 22 + self.bulletRadius && self.parent !== p.id) {
 					if (!p.isImmune) p.hp -= 1;
 
 					if (p.hp <= 0) {
@@ -350,37 +350,6 @@ var Bullet = function (param) {
 		};
 	}
 
-	// self.ricochet = function (pointX, pointY) {
-	// 	self.collisionCount++;
-	// 	var gridX = Math.floor(pointX / TILE_SIZE);
-	// 	var gridY = Math.floor(pointY / TILE_SIZE);
-
-	// 	var leftEdge = gridX * TILE_SIZE;
-	// 	var rightEdge = (gridX + 1) * TILE_SIZE;
-	// 	var topEdge = gridY * TILE_SIZE;
-	// 	var bottomEdge = (gridY + 1) * TILE_SIZE;
-
-	// 	// Calculate distances to each edge from the point of impact
-	// 	var distanceToLeft = Math.abs(pointX - leftEdge);
-	// 	var distanceToRight = Math.abs(pointX - rightEdge);
-	// 	var distanceToTop = Math.abs(pointY - topEdge);
-	// 	var distanceToBottom = Math.abs(pointY - bottomEdge);
-
-	// 	// Find the minimum distance
-	// 	var minDistance = Math.min(distanceToLeft, distanceToRight, distanceToTop, distanceToBottom);
-
-	// 	var buffer = 5;
-
-	// 	if (minDistance === distanceToLeft || minDistance === distanceToRight) {
-	// 		self.spdX = -self.spdX;
-	// 		self.x += (self.spdX > 0 ? buffer : -buffer);
-	// 	} else {
-	// 		self.spdY = -self.spdY;
-	// 		self.y += (self.spdY > 0 ? buffer : -buffer);
-	// 	}
-
-	// }
-
 	self.ricochet = function (pointX, pointY) {
 		self.collisionCount++;
 		var gridX = Math.floor(pointX / TILE_SIZE);
@@ -406,7 +375,7 @@ var Bullet = function (param) {
 		// corner case
 		if ((distanceToLeft < BUFFER || distanceToRight < BUFFER) && distanceToBottom < BUFFER) {
 
-			if ((distanceToLeft < BUFFER && neighborLeft == false) || (distanceToRight < BUFFER && neighborRight == false) && neighborBottom == false) {
+			if ((distanceToLeft < BUFFER && neighborLeft === false) || (distanceToRight < BUFFER && neighborRight === false) && neighborBottom === false) {
 				self.spdX = -self.spdX;
 				self.spdY = -self.spdY;
 				return;
@@ -416,7 +385,7 @@ var Bullet = function (param) {
 			return;
 		} else if ((distanceToLeft < BUFFER || distanceToRight < BUFFER) && distanceToTop < BUFFER) {
 
-			if ((distanceToLeft < BUFFER && neighborLeft == false) || (distanceToRight < BUFFER && neighborRight == false) && neighborTop == false) {
+			if ((distanceToLeft < BUFFER && neighborLeft === false) || (distanceToRight < BUFFER && neighborRight === false) && neighborTop === false) {
 				self.spdX = -self.spdX;
 				self.spdY = -self.spdY;
 				return;

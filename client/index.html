@@ -144,11 +144,6 @@
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
 
-			ctx.font = '20px Arial';
-			ctx.fillStyle = 'white';
-			var textWidth = ctx.measureText(self.username).width;
-			ctx.fillText(self.username, x - textWidth / 2, y - 50);
-
 			// Draw the player's body as a circle
 			ctx.fillStyle = '#2596be';
 			ctx.beginPath();
@@ -166,10 +161,17 @@
 			} else {
 				drawBarrel(self.mouseAngle);
 			}
+			ctx.save();
+			ctx.font = '20px Arial';
+			ctx.fillStyle = 'white';
+			var textWidth = ctx.measureText(self.username).width;
+			ctx.fillText(self.username, x - textWidth / 2, y - 40);
 
 			var hpWidth = 50 * self.hp / self.hpMax;
-			ctx.fillStyle = 'green';
+			ctx.fillStyle = '#04e498';
 			ctx.fillRect(x - hpWidth / 2, y + 40, hpWidth, 4);
+
+			ctx.restore();
 
 		}
 
@@ -233,7 +235,7 @@
 		self.upgradeName = initPack.upgradeName;
 
 		self.draw = function () {
-
+			ctx.save();
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
 
@@ -247,6 +249,8 @@
 			ctx.textAlign = 'center';
 			ctx.textBaseline = 'middle';
 			ctx.fillText(self.upgradeName, x, y);
+
+			ctx.restore();
 		}
 
 		Upgrade.list[self.id] = self;
