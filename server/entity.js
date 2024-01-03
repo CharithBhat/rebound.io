@@ -343,6 +343,7 @@ var Bullet = function (param) {
 			x: self.x,
 			y: self.y,
 			radius: self.radius,
+			parent: self.parent,
 		};
 	}
 	self.getUpdatePack = function () {
@@ -351,6 +352,7 @@ var Bullet = function (param) {
 			x: self.x,
 			y: self.y,
 			radius: self.radius,
+			parent: self.parent,
 		};
 	}
 
@@ -375,10 +377,6 @@ var Bullet = function (param) {
 		var neighborRight = gridX < array2D[0].length - 1 && isPositionWall(array2D, pointX + TILE_SIZE, pointY);
 		var neighborBottom = gridY < array2D.length - 1 && isPositionWall(array2D, pointX, pointY + TILE_SIZE);
 		var neighborTop = gridY < array2D.length - 1 && isPositionWall(array2D, pointX, pointY - TILE_SIZE);
-		console.log('left:' + neighborLeft);
-		console.log('right:' + neighborRight);
-		console.log('top:' + neighborTop);
-		console.log('bottom:' + neighborBottom);
 		// corner case
 		if ((distanceToLeft < BUFFER || distanceToRight < BUFFER) && distanceToBottom < BUFFER) {
 
@@ -409,7 +407,6 @@ var Bullet = function (param) {
 		} else {
 			self.spdY = -self.spdY;
 		}
-
 	}
 
 
@@ -453,10 +450,11 @@ var Upgrade = function (param) {
 		self.toRemove = true;
 	}, 15000);
 
+
 	self.update = function () {
 		for (var i in Player.list) {
 			var player = Player.list[i];
-			if (self.getDistance(player) < 32) {
+			if (self.getDistance(player) < 32 + self.radius) {
 				self.applyEffect(player, self.upgradeName);
 				self.toRemove = true;
 			}
@@ -468,19 +466,19 @@ var Upgrade = function (param) {
 		switch (upgradeName) {
 
 			// buffs
-			case 'bullet speed':
+			case 'bullet speed': // currently not using
 				player.bulletSpeed *= 2;
 				setTimeout(() => {
 					player.bulletSpeed /= 2;
 				}, BUFF_DURATION);
 				break;
-			case 'bullet size':
+			case 'bulletSize':
 				player.bulletRadius *= 2;
 				setTimeout(() => {
 					player.bulletRadius /= 2;
 				}, BUFF_DURATION);
 				break;
-			case 'bullet fireRate':
+			case 'bulletFireRate':
 				player.fireRate /= 2;
 				setTimeout(() => {
 					player.fireRate *= 2;
@@ -492,24 +490,24 @@ var Upgrade = function (param) {
 					player.isImmune = false;
 				}, BUFF_DURATION);
 				break;
-			case 'health restore':
+			case 'healthRestore':
 				player.hp = player.hpMax;
 				break;
 
 				// guns
-			case 'triple shot':
+			case 'tripleShot':
 				player.isTripleShot = true;
 				setTimeout(() => {
 					player.isTripleShot = false;
 				}, BUFF_DURATION);
 				break;
-			case 'phoenix shot':
+			case 'phoenixShot':
 				player.isPhoenixShot = true;
 				setTimeout(() => {
 					player.isPhoenixShot = false;
 				}, BUFF_DURATION);
 				break;
-			case 'double rebounder':
+			case 'doubleRebounder':
 				player.isDoubleRebounder = true;
 				setTimeout(() => {
 					player.isDoubleRebounder = false;
@@ -574,8 +572,8 @@ Upgrade.getAllInitPack = function () {
 getRandomUpgrade = function (type) {
 
 	// removed bullet speed, its too fast, bullet goes deep into wall and delete
-	const buffUpgrade = ['bullet size', 'immunity', 'health restore', 'bullet fireRate'];
-	const gunUpgrade = ['triple shot', 'phoenix shot', 'double rebounder'];
+	const buffUpgrade = ['immunity', 'healthRestore'];
+	const gunUpgrade = ['tripleShot', 'phoenixShot', 'doubleRebounder', 'bulletSize', 'bulletFireRate'];
 
 	let availableUpgrade = type === 'buff' ? buffUpgrade : gunUpgrade;
 	let randomIndex = Math.floor(Math.random() * availableUpgrade.length);
@@ -585,7 +583,7 @@ getRandomUpgrade = function (type) {
 
 // Spawning upgrades
 setInterval(function () {
-	var type = Math.random() < 0.5 ? 'buff' : 'gun';
+	var type = Math.random() < 0.28 ? 'buff' : 'gun';
 	var spawnTile = randomNonWallTile();
 	Upgrade({
 		radius: 32,

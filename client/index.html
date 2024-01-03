@@ -116,16 +116,26 @@
 
 
 	var Img = {};
-	Img.player = new Image();
-	Img.player.src = '/client/img/player.png';
-	Img.otherPlayer = new Image();
-	Img.otherPlayer.src = '/client/img/bat.png';
-	Img.bullet = new Image();
-	Img.bullet.src = '/client/img/bullet.png';
 
 	Img.map = {};
 	Img.map['field'] = new Image();
 	Img.map['field'].src = '/client/img/brownMap.png';
+
+	var upgradeImages = {};
+	upgradeImages.healthRestore = new Image();
+	upgradeImages.healthRestore.src = 'client/img/healthRestore.png';
+	upgradeImages.immunity = new Image();
+	upgradeImages.immunity.src = 'client/img/immunity.png';
+	upgradeImages.bulletFireRate = new Image();
+	upgradeImages.bulletFireRate.src = 'client/img/bulletFireRate.png';
+	upgradeImages.phoenixShot = new Image();
+	upgradeImages.phoenixShot.src = 'client/img/phoenixShot.png';
+	upgradeImages.bulletSize = new Image();
+	upgradeImages.bulletSize.src = 'client/img/bulletSize.png';
+	upgradeImages.tripleShot = new Image();
+	upgradeImages.tripleShot.src = 'client/img/tripleShot.png';
+	upgradeImages.doubleRebounder = new Image();
+	upgradeImages.doubleRebounder.src = 'client/img/doubleRebounder.png';
 
 	var Player = function (initPack) {
 		var self = {};
@@ -146,7 +156,7 @@
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
 
 			if (self.isHit) {
-				ctx.fillStyle = 'white'; // Semi-transparent red
+				ctx.fillStyle = '#FF6B6B'; // Semi-transparent red
 				ctx.beginPath();
 				ctx.arc(x, y, 20, 0, Math.PI * 2);
 				ctx.fill();
@@ -223,20 +233,19 @@
 		self.x = initPack.x;
 		self.y = initPack.y;
 		self.radius = initPack.radius;
+		self.parent = initPack.parent;
 
 		self.draw = function () {
-			var width = Img.bullet.width / 2;
-			var height = Img.bullet.height / 2;
 
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
 
-			ctx.fillStyle = '#2596be';
+			ctx.fillStyle = self.parent === selfId ? '#2596be' : '#df444c';
 			ctx.beginPath();
 			ctx.arc(x, y, self.radius, 0, Math.PI * 2);
 			ctx.fill();
 
-			ctx.strokeStyle = '#134b5f';
+			ctx.strokeStyle = self.parent === selfId ? '#134b5f' : '#a33237';
 			ctx.lineWidth = 2;
 			ctx.stroke();
 		}
@@ -260,18 +269,25 @@
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
 
-			ctx.fillStyle = self.type === 'buff' ? 'blue' : 'purple';
+			ctx.fillStyle = self.type === 'buff' ? '#134b5f' : 'purple';
 			ctx.beginPath();
 			ctx.arc(x, y, self.radius, 0, Math.PI * 2); //32 is raidus
 			ctx.fill();
-
-			ctx.fillStyle = 'white';
-			ctx.font = '14px Arial';
-			ctx.textAlign = 'center';
-			ctx.textBaseline = 'middle';
-			ctx.fillText(self.upgradeName, x, y);
-
 			ctx.restore();
+			
+			ctx.strokeStyle = self.type === 'buff' ? 'orange' : 'orange';
+			ctx.lineWidth = 4;
+			ctx.stroke();
+
+			// var image = upgradeImages[self.upgradeType]; 
+			var image = upgradeImages[self.upgradeName];
+			var scaleFactor = self.upgradeName === 'bulletFireRate' ? 0.6 : 0.8;
+			if (image) {
+				var imageSize = self.radius * 2 * scaleFactor; // 80% of the diameter of the circle
+				var imageX = x - imageSize / 2;
+				var imageY = y - imageSize / 2;
+				ctx.drawImage(image, imageX, imageY, imageSize, imageSize);
+			}
 		}
 
 		Upgrade.list[self.id] = self;
@@ -341,12 +357,6 @@
 					u.x = pack.x;
 				if (pack.y !== undefined)
 					u.y = pack.y;
-				if (pack.type !== undefined) {
-					u.type = pack.type;
-				}
-				if (pack.radius !== undefined) {
-					u.radius = pack.radius;
-				}
 			}
 		}
 	});
