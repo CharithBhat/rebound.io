@@ -585,7 +585,7 @@ getRandomUpgrade = function (type) {
 
 // Spawning upgrades
 setInterval(function () {
-	var type = Math.random() < 1 ? 'buff' : 'gun';
+	var type = Math.random() < 0.28 ? 'buff' : 'gun';
 	var spawnTile = randomNonWallTile();
 	Upgrade({
 		radius: 32,
