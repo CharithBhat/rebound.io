@@ -150,6 +150,7 @@
 		self.mouseAngle = initPack.mouseAngle;
 		self.isTripleShot = initPack.isTripleShot;
 		self.isHit = initPack.isHit;
+		self.isImmune = initPack.isImmune;
 
 		self.draw = function () {
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
@@ -168,7 +169,7 @@
 					ctx.arc(x, y, 20, 0, Math.PI * 2); // Assuming the player's radius is 20
 					ctx.fill();
 
-					ctx.strokeStyle = '#134b5f';
+					ctx.strokeStyle = self.isImmune ? 'white' : '#134b5f';
 					ctx.lineWidth = 2;
 					ctx.stroke();
 				} else {
@@ -177,7 +178,7 @@
 					ctx.arc(x, y, 20, 0, Math.PI * 2); // Assuming the player's radius is 20
 					ctx.fill();
 
-					ctx.strokeStyle = '#a33237';
+					ctx.strokeStyle = self.isImmune ? 'white' : '#a33237';
 					ctx.lineWidth = 2;
 					ctx.stroke();
 				}
@@ -336,6 +337,9 @@
 				}
 				if (pack.isHit !== undefined) {
 					p.isHit = pack.isHit;
+				}
+				if(pack.isImmune !== undefined){
+					p.isImmune = pack.isImmune;
 				}
 			}
 		}

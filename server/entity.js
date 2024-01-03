@@ -203,6 +203,7 @@ Player = function (param) {
 			mouseAngle: self.mouseAngle,
 			isTripleShot: self.isTripleShot,
 			isHit: self.isHit,
+			isImmune: self.isImmune,
 		};
 	}
 	self.getUpdatePack = function () {
@@ -216,6 +217,7 @@ Player = function (param) {
 			mouseAngle: self.mouseAngle,
 			isTripleShot: self.isTripleShot,
 			isHit: self.isHit,
+			isImmune: self.isImmune,
 		}
 	}
 
@@ -583,7 +585,7 @@ getRandomUpgrade = function (type) {
 
 // Spawning upgrades
 setInterval(function () {
-	var type = Math.random() < 0.28 ? 'buff' : 'gun';
+	var type = Math.random() < 1 ? 'buff' : 'gun';
 	var spawnTile = randomNonWallTile();
 	Upgrade({
 		radius: 32,
