@@ -20,10 +20,18 @@
 		</form>
 	</div>
 </div> -->
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="styles.css">
+	<title>Rebound io</title>
+</head>
 
 <body style="margin: 0px; padding: 0px;">
 	<div id="startScreen">
-		Username: <input id="usernameInput" type="text"></input><br>
+		Username: <input id="usernameInput" type="text" placeholder="Username"></input><br>
 		<button id="playButton">Play</button>
 	</div>
 
@@ -43,6 +51,8 @@
 		</div> -->
 	</div>
 </body>
+
+</html>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -275,7 +285,7 @@
 			ctx.arc(x, y, self.radius, 0, Math.PI * 2); //32 is raidus
 			ctx.fill();
 			ctx.restore();
-			
+
 			ctx.strokeStyle = self.type === 'buff' ? 'orange' : 'orange';
 			ctx.lineWidth = 4;
 			ctx.stroke();
@@ -338,7 +348,7 @@
 				if (pack.isHit !== undefined) {
 					p.isHit = pack.isHit;
 				}
-				if(pack.isImmune !== undefined){
+				if (pack.isImmune !== undefined) {
 					p.isImmune = pack.isImmune;
 				}
 			}

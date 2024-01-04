@@ -325,6 +325,7 @@ var Bullet = function (param) {
 					p.isHit = true;
 					p.hitTime = Date.now();
 					if (p.hp <= 0) {
+						p.score = 0;
 						var shooter = Player.list[self.parent];
 						if (shooter)
 							shooter.score += 1;
