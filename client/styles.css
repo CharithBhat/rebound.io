@@ -5,9 +5,24 @@ body, html {
     overflow: hidden;
 }
 
+body::after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Adjust the last value for the desired opacity */
+    z-index: -1; /* Positions the overlay behind the content */
+}
+
 body {
-    background: url('client/img/backgroundImage.png') no-repeat center center fixed;
+    background: url('/client/img/backgroundImage.png');
     background-size: cover;
+    background-repeat:no-repeat;
+    background-position:center;
+    position: relative;
 }
 
 #startScreen {
@@ -21,26 +36,72 @@ body {
     justify-content: center;
 }
 
+#logoImage {
+    width: 65%; 
+    max-width: 600px; /* Adjust the max width as needed */
+    height: auto; /* This ensures that the image's aspect ratio is maintained */ /* Adds some space between your logo and the text field */
+}
+
+#storyText {
+    font-weight: bold;
+    font-size: 22px;
+    /* text-align: center; */
+    color: white;
+    margin-top: 30px;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+
 #usernameInput {
-    margin-bottom: 10px;
     text-align: center;
-    padding: 10px;
-    font-size: 16px;
-    width: 80%;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    /* width: 80%; */
     max-width: 300px; /* Adjust the max-width as needed */
+    border: 5px solid #000;
+    font-weight: bold;
+    font-size: 22px;
+    margin-bottom: 10px;
 }
 
 #playButton {
-    padding: 10px 20px;
+    padding: 6px 20px;
     font-size: 18px;
     background: linear-gradient(to right, #00d2ff, #3a7bd5);
     border: none;
     color: white;
-    border-radius: 20px;
+    border-radius: 10px;
     cursor: pointer;
-    width: 80%;
-    max-width: 200px; /* Adjust the max-width as needed */
+    /* width: 40%; */
+    max-width: 80px; /* Adjust the max-width as needed */
+    border: 5px solid #3a7bd5;
 }
+
+#userDiv {
+    flex-direction: row; /* Align children horizontally */
+    justify-content: center; /* Center children horizontally */
+    align-items: center; 
+}
+
+#bottomContainer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center; /* Center the text within the div */
+    z-index: 10; /* Ensures it's above other elements */
+}
+
+#bottomText {
+    color: white;
+    font-size: 22px;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+
 
 /* Responsive styles */
 @media (max-width: 600px) {
