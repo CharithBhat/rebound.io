@@ -48,7 +48,7 @@ io.sockets.on('connection', function (socket) {
 		socket.emit('evalAnswer', res);
 	});
 
-});
+}); 
 
 setInterval(function () {
 	var packs = Entity.getFrameUpdateData();

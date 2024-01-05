@@ -32,7 +32,7 @@
 <body style="margin: 0px; padding: 0px;">
 	<div id="startScreen">
 		<img id="logoImage" src="/client/img/logo.png" alt="REBOUND.IO Logo">
-		<p id="storyText">This is the tale of..</p>
+		<p id="storyText">Rebound to hit enemies</p>
 		<div id="userDiv">
 			<input id="usernameInput" type="text" placeholder="Username"></input>
 			<button id="playButton">Play</button>
@@ -513,6 +513,37 @@
 		socket.emit('keyPress', {
 			inputId: 'mouseAngle',
 			state: angle
+		});
+	}
+
+	window.onblur = function () {
+		resetKeyStates();
+	};
+
+	window.onfocus = function () {
+		resetKeyStates();
+	};
+
+	function resetKeyStates() {
+		socket.emit('keyPress', {
+			inputId: 'right',
+			state: false
+		});
+		socket.emit('keyPress', {
+			inputId: 'down',
+			state: false
+		});
+		socket.emit('keyPress', {
+			inputId: 'left',
+			state: false
+		});
+		socket.emit('keyPress', {
+			inputId: 'up',
+			state: false
+		});
+		socket.emit('keyPress', {
+			inputId: 'attack',
+			state: false
 		});
 	}
 
