@@ -255,18 +255,18 @@
 		self.y = initPack.y;
 		self.radius = initPack.radius;
 		self.parent = initPack.parent;
+		self.collisionCount = initPack.collisionCount;
 
 		self.draw = function () {
 
 			var x = self.x - Player.list[selfId].x + WIDTH / 2;
 			var y = self.y - Player.list[selfId].y + HEIGHT / 2;
-
+			var borderColor = self.parent === selfId ? '#134b5f' : '#a33237';
 			ctx.fillStyle = self.parent === selfId ? '#2596be' : '#df444c';
 			ctx.beginPath();
 			ctx.arc(x, y, self.radius, 0, Math.PI * 2);
 			ctx.fill();
-
-			ctx.strokeStyle = self.parent === selfId ? '#134b5f' : '#a33237';
+			ctx.strokeStyle = collisionCount > 0 ? 'white' : borderColor;
 			ctx.lineWidth = 2;
 			ctx.stroke();
 		}
@@ -371,6 +371,8 @@
 					b.x = pack.x;
 				if (pack.y !== undefined)
 					b.y = pack.y;
+				if(pack.collisionCount !== undefined)
+					b.collisionCount = pack.collisionCount;
 			}
 		}
 		for (var i = 0; i < data.upgrade.length; i++) {

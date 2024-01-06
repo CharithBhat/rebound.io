@@ -347,6 +347,7 @@ var Bullet = function (param) {
 			y: self.y,
 			radius: self.radius,
 			parent: self.parent,
+			collisionCount: self.collisionCount,
 		};
 	}
 	self.getUpdatePack = function () {
@@ -356,6 +357,7 @@ var Bullet = function (param) {
 			y: self.y,
 			radius: self.radius,
 			parent: self.parent,
+			collisionCount: self.collisionCount,
 		};
 	}
 
