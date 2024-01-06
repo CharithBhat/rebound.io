@@ -18,7 +18,7 @@ var removePack = {
 var MAP_WIDTH = array2D[0].length * TILE_SIZE;
 var MAP_HEIGHT = array2D.length * TILE_SIZE;
 
-const BUFF_DURATION = 10000; // 10 seconds
+const BUFF_DURATION = 30000; // 30 seconds
 
 Entity = function (param) {
 	var spawnTile = randomNonWallTile();
