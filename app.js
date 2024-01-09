@@ -5,7 +5,10 @@ var app = express();
 // var serv = require('http').Server(app);
 const serv = http.createServer(app);
 // require('./entity');
-const { Entity, Player, Bullet } = require('./server/entity');
+const {Player} = require('./server/player');
+const {Bullet} = require('./server/bullet');
+const {Upgrade} = require('./server/upgrade');
+const {initPack, removePack} = require('./server/global');
 
 
 app.get('/', function (req, res) {
@@ -50,8 +53,35 @@ io.sockets.on('connection', function (socket) {
 
 }); 
 
+getFrameUpdateData = function () {
+	var pack = {
+		initPack: {
+			player: initPack.player,
+			bullet: initPack.bullet,
+			upgrade: initPack.upgrade,
+		},
+		removePack: {
+			player: removePack.player,
+			bullet: removePack.bullet,
+			upgrade: removePack.upgrade,
+		},
+		updatePack: {
+			player: Player.update(),
+			bullet: Bullet.update(),
+			upgrade: Upgrade.update(),
+		}
+	};
+	initPack.player = [];
+	initPack.bullet = [];
+	initPack.upgrade = [];
+	removePack.player = [];
+	removePack.bullet = [];
+	removePack.upgrade = [];
+	return pack;
+}
+
 setInterval(function () {
-	var packs = Entity.getFrameUpdateData();
+	var packs = getFrameUpdateData();
 	for (var i in SOCKET_LIST) {
 		var socket = SOCKET_LIST[i];
 		socket.emit('init', packs.initPack);
