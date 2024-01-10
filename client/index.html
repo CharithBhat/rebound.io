@@ -85,6 +85,9 @@
 	const TILE_SIZE = 32;
 	const COLLISION_ARRAY_SIZE = 50;
 
+	// flashing instruction text
+	var gameStartTime = Date.now();
+
 	let resizeCanvas = function () {
 		WIDTH = window.innerWidth - 4;
 		HEIGHT = window.innerHeight - 4;
@@ -371,7 +374,7 @@
 					b.x = pack.x;
 				if (pack.y !== undefined)
 					b.y = pack.y;
-				if(pack.collisionCount !== undefined)
+				if (pack.collisionCount !== undefined)
 					b.collisionCount = pack.collisionCount;
 			}
 		}
@@ -404,8 +407,11 @@
 		if (!selfId)
 			return;
 		ctx.clearRect(0, 0, WIDTH, HEIGHT);
+		ctxUi.clearRect(0, 0, WIDTH, HEIGHT);
 		drawMap();
 		drawScore();
+		drawFlashingText();
+
 		for (var i in Player.list)
 			Player.list[i].draw();
 		for (var i in Bullet.list)
@@ -425,13 +431,87 @@
 		);
 	}
 
+	function drawFlashingText() {
+    var text = "Only bullets that rebound off of walls can hurt enemies";
+    var padding = 10; // padding around the text
+    ctxUi.font = "20px Arial"; // Set the font before measuring text
+    var textWidth = ctxUi.measureText(text).width;
+    var textHeight = 20; // Assuming 20px as the height of the text for Arial font
+
+    // Rectangle dimensions
+    var rectWidth = textWidth + (padding * 2);
+    var rectHeight = textHeight + (padding * 2);
+
+    // Calculate positions to center the rectangle and text horizontally
+    var centerX = WIDTH / 2; // Assuming WIDTH is the width of your canvas
+    var rectX = centerX - rectWidth / 2;
+    var textX = rectX + padding;
+
+    var rectY = 40 - textHeight - padding; // Adjust as needed
+
+    // Draw the rectangle background first
+    ctxUi.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctxUi.fillRect(rectX, rectY, rectWidth, rectHeight);
+
+    // Then draw the text, vertically centered in the rectangle
+    var textBaselineY = rectY + rectHeight / 2 + textHeight / 2 - 4;
+    ctxUi.fillStyle = 'white';
+    ctxUi.fillText(text, textX, textBaselineY);
+
+    // Flash the border for the first 10 seconds
+    var currentTime = Date.now();
+    if (currentTime - gameStartTime <= 10000) { // 10 seconds = 10000 milliseconds
+        if (Math.floor((currentTime - gameStartTime) / 500) % 2 === 0) { // Flash every 0.5 seconds
+            ctxUi.strokeStyle = 'white';
+            ctxUi.lineWidth = 2;
+            ctxUi.strokeRect(rectX, rectY, rectWidth, rectHeight);
+        }
+    }
+}
+
+
+	// function drawFlashingText() {
+	// 	var text = "Only bullets that rebound off of walls can hurt enemies";
+	// 	var textX = 10;
+	// 	var padding = 10; // padding around the text
+	// 	ctxUi.font = "20px Arial"; // Set the font before measuring text
+	// 	var textWidth = ctxUi.measureText(text).width;
+	// 	var textHeight = 20; // Assuming 20px as the height of the text for Arial font
+
+	// 	// Rectangle dimensions
+	// 	var rectWidth = textWidth + (padding * 2);
+	// 	var rectHeight = textHeight + (padding * 2);
+	// 	var rectX = textX - padding;
+	// 	var rectY = 40 - textHeight - padding; // Adjust as needed
+
+	// 	// Draw the rectangle background first
+	// 	ctxUi.fillStyle = 'rgba(255, 255, 255, 0.3)';
+	// 	ctxUi.fillRect(rectX, rectY, rectWidth, rectHeight);
+
+	// 	// Then draw the text, vertically centered in the rectangle
+	// 	var textBaselineY = rectY + rectHeight / 2 + textHeight / 2 - 4;
+	// 	ctxUi.fillStyle = 'white';
+	// 	ctxUi.fillText(text, textX, textBaselineY);
+
+	// 	// Flash the border for the first 10 seconds
+	// 	var currentTime = Date.now();
+	// 	if (currentTime - gameStartTime <= 10000) { // 10 seconds = 10000 milliseconds
+	// 		if (Math.floor((currentTime - gameStartTime) / 500) % 2 === 0) { // Flash every 0.5 seconds
+	// 			ctxUi.strokeStyle = 'white';
+	// 			ctxUi.lineWidth = 2;
+	// 			ctxUi.strokeRect(rectX, rectY, rectWidth, rectHeight);
+	// 		}
+	// 	}
+	// }
+
+
 
 	var drawScore = function () {
 		var scoreText = "Kills: " + Player.list[selfId].score;
-		if (lastScore === scoreText)
-			return;
+		// if (lastScore === scoreText)
+		// 	return;
 		lastScore = scoreText;
-		ctxUi.clearRect(0, 0, WIDTH, HEIGHT);
+		// ctxUi.clearRect(0, 0, WIDTH, HEIGHT);
 		ctxUi.fillStyle = 'white';
 		ctxUi.font = "20px Arial"; // Set this to the desired font size
 		var textWidth = ctxUi.measureText(scoreText).width;
